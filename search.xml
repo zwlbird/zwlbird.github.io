@@ -20,4 +20,21 @@
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
   </entry>
+  <entry>
+    <title>test</title>
+    <url>/2021/06/18/test/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="这是个标题"><a href="#这是个标题" class="headerlink" title="这是个标题"></a>这是个标题</h1><p>这是第一个段落内容</p>
+<p>这是第二个段落内容</p>
+<blockquote>
+<p>这是一段引用段落，将会被高亮显示</p>
+</blockquote>
+<p><img src="/.io//test.png" alt="你想输入的替代文字"></p>
+]]></content>
+      <categories>
+        <category>test</category>
+      </categories>
+      <tags>
+        <tag>test</tag>
+      </tags>
+  </entry>
 </search>
