@@ -33,7 +33,13 @@
 
 
 <hr>
-<p><img src="/.io//test.png" alt="test"></p>
+<p>这是一张图片<img src="/2021/06/18/test/%E5%8F%A4%E9%87%8E%E5%8F%AF%E8%A7%81%E5%85%89.png" alt="古野可见光"></p>
+<p><img src="/2021/06/18/test/%E5%8F%A4%E9%87%8E%E5%8F%AF%E8%A7%81%E5%85%89.png" alt="古野可见光"></p>
+<p><img src="/2021/06/18/test/%E5%8F%A4%E9%87%8E%E5%8F%AF%E8%A7%81%E5%85%89.png" alt="test.png"></p>
+<img src="/2021/06/18/test/%E5%8F%A4%E9%87%8E%E5%8F%AF%E8%A7%81%E5%85%89.png" class title="This is an example image">
+
+
+
 <p><img src="https://www.baidu.com/img/bd_logo1.png?where=super" alt="百度logo"></p>
 ]]></content>
       <categories>
