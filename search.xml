@@ -28,7 +28,13 @@
 <blockquote>
 <p>这是一段引用段落，将会被高亮显示</p>
 </blockquote>
-<p><img src="/.io//test.png" alt="你想输入的替代文字"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if(plot-&gt;type == m_bIsPlotActive_singleplot)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;else if(plot-&gt;type == m_bIsPlotActive_multiplot)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;else if(plot-&gt;type == m_bIsPlotActive_oriplot)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<hr>
+<p><img src="/.io//test.png" alt="test"></p>
+<p><img src="https://www.baidu.com/img/bd_logo1.png?where=super" alt="百度logo"></p>
 ]]></content>
       <categories>
         <category>test</category>
