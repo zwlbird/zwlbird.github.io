@@ -322,9 +322,203 @@
   <entry>
     <title>多线程</title>
     <url>/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script>]]></content>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="什么进程"><a href="#什么进程" class="headerlink" title="什么进程"></a>什么进程</h1><p>进程是指在系统中正在运行的一个应用程序，每个进程之间是独立的，每个进程均运行在其专用且受保护的内存空间内。</p>
+<h1 id="什么是线程"><a href="#什么是线程" class="headerlink" title="什么是线程"></a>什么是线程</h1><p>进程想执行任务，必须得有线程（至少一个），线程是进程的基本执行单元，一个进程的所有任务都在线程中执行。</p>
+<h1 id="线程的特点"><a href="#线程的特点" class="headerlink" title="线程的特点"></a>线程的特点</h1><h2 id="线程内核对象"><a href="#线程内核对象" class="headerlink" title="线程内核对象"></a>线程内核对象</h2><p>操作系统对进程和线程的管理都是通过相应的内核对象实现的。它会为每个线程都分配并初始化这种数据结构。在该数据结构中，包含一组对线程进行描述的属性。数据结构中还包含所谓的线程上下文，上下文是一个内存块，其中包含了CPU的寄存器集合。</p>
+<mark class="hl-label blue">线程进程都是数据结构</mark>  
+
+<h2 id="线程控制块"><a href="#线程控制块" class="headerlink" title="线程控制块"></a>线程控制块</h2><p>线程的实体包括程序，数据和线程控制块（TCB，Thread Control Block）。线程是动态概念，TCB包括以下信息：</p>
+<ul>
+<li>线程状态</li>
+<li>当线程不运行时，被保存的现场资源</li>
+<li>一组执行堆栈</li>
+<li>存放每个线程的局部变量主存区</li>
+<li>访问每个进程中的主存和其他资源</li>
+</ul>
+<mark class="hl-label blue">PCB是进程控制块</mark>  
+
+<h2 id="独立调度和分派的基本单元"><a href="#独立调度和分派的基本单元" class="headerlink" title="独立调度和分派的基本单元"></a>独立调度和分派的基本单元</h2><p>线程是能独立运行的基本单元，因而也是独立调度和分派的基本单元。CPU是以线程为单元执行，创建出来的线程不一定马上执行，调度后允许线程运行一个“时间片”，单核处理器一个时间片只执行一个线程，而多核处理器可允许一个进程中所有线程都能并发执行。</p>
+<mark class="hl-label blue">进程的执行实际是线程的执行，单核的只是现象的并发，多核的才是真正的并发</mark>  
+
+<h2 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h2><p>线程是由CPU进行调度的，CPU的一个时间片内只执行一个线程上下文内的线程，当CPU由执行线程A切换到执行线程B的过程中会发生一系列的操作，如“保存线程A的执行现场”然后“载入线程B的执行现场”，这个过程称之为“上下文切换（context switch）”，这个上下文切换过程会消耗资源，所以应尽量减少上下文切换的发生。</p>
+<blockquote>
+<p><strong>引起上下文切换的原因</strong></p>
+</blockquote>
+<ul>
+<li>时间片用完，CPU正常调度下一个任务</li>
+<li>被其他优先级更高的任务抢占</li>
+<li>执行任务碰到IO阻塞，调度器挂起当前任务，切换执行下一个任务</li>
+<li>用户代码主动挂起当前任务让出CPU时间片</li>
+<li>多任务抢占资源，由于没有抢到被挂起</li>
+<li>硬件中断</li>
+</ul>
+<h2 id="共享进程资源"><a href="#共享进程资源" class="headerlink" title="共享进程资源"></a>共享进程资源</h2><p>在同一进程重的各个线程，都可以共享改进程所拥有的资源，这首先表现在：所以线程都具有相同的地址空间（进程的地址空间），这意味着，线程可以访问改地址空间的每一个虚地址；此外，还可以访问进程所拥有已打开的文件、定时器、信号量机构等。由于同一个进程内的线程共享内存和文件，所以线程之间通信不必调用内核。</p>
+<p>线程的状态</p>
+<mark class="hl-label blue">线程是动态的，是不断变化的，所以有很多不同的状态</mark>  
+
+<p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/image-20210714214404130.png" alt="image-20210714214404130"></p>
+<h1 id="API"><a href="#API" class="headerlink" title="API"></a>API</h1><h2 id="创建-CreateThread"><a href="#创建-CreateThread" class="headerlink" title="创建 CreateThread"></a>创建 CreateThread</h2><p>​                                                 <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps1.jpg" alt="img">     </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps2.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps3.jpg" alt="img">                 </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps4.jpg" alt="img"> </p>
+<p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/image-20210714224707676.png" alt="image-20210714224707676"></p>
+<p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps6.jpg" alt="img"></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;windows.h&quot;</span><span class="comment">//线程相关头文件</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;iostream&quot;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span>  std;</span><br><span class="line"></span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadFun1</span><span class="params">(LPVOID lpThreadParameter)</span></span>;</span><br><span class="line">DWORD threadID = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HANDLE hThread1 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="comment">//设为NULL使用默认安全性</span></span><br><span class="line">		<span class="number">0</span>, <span class="comment">//如果为0，那么默认将使用与调用改函数的线程相同的栈空间大小</span></span><br><span class="line">		ThreadFun1,<span class="comment">//线程处理函数，函数名就是函数指针</span></span><br><span class="line">		<span class="string">&quot;hello &quot;</span>,<span class="comment">//向线程函数传入的参数</span></span><br><span class="line">		<span class="number">0</span>, <span class="comment">//创建后马上运行</span></span><br><span class="line">		&amp;threadID</span><br><span class="line">		);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (hThread1 == <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;线程创建失败&quot;</span> &lt;&lt; <span class="built_in">GetLastError</span>() &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;线程句柄&quot;</span> &lt;&lt; hThread1 &lt;&lt; endl;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;线程ID&quot;</span> &lt;&lt; threadID &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadFun1</span><span class="params">(LPVOID lpThreadParameter)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> *str = (<span class="keyword">char</span> *)lpThreadParameter;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;线程处理函数中：&quot;</span> &lt;&lt; str &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="获取线程ID-GetCurrentThreadId"><a href="#获取线程ID-GetCurrentThreadId" class="headerlink" title="获取线程ID GetCurrentThreadId"></a>获取线程ID GetCurrentThreadId</h2><p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps7.jpg" alt="img">                     </p>
+<h2 id="关闭句柄CloseHandle"><a href="#关闭句柄CloseHandle" class="headerlink" title="关闭句柄CloseHandle"></a>关闭句柄CloseHandle</h2><p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps8.jpg" alt="img"></p>
+<mark class="hl-label blue">closeHandle仅仅是引用计数-1，并没有结束线程，线程中的该执行的还是执行。</mark>  
+
+<h2 id="挂起线程-SuspendThread"><a href="#挂起线程-SuspendThread" class="headerlink" title="挂起线程 SuspendThread"></a>挂起线程 SuspendThread</h2><p>从而不会被CPU调度。</p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps12.jpg" alt="img"> </p>
+<h2 id="恢复线程ResumeThread"><a href="#恢复线程ResumeThread" class="headerlink" title="恢复线程ResumeThread"></a>恢复线程ResumeThread</h2><p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps13.jpg" alt="img"> </p>
+<h2 id="Sleep"><a href="#Sleep" class="headerlink" title="Sleep"></a>Sleep</h2><p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps14.jpg" alt="img"> </p>
+<h2 id="等待通知-WaitForSingleObject"><a href="#等待通知-WaitForSingleObject" class="headerlink" title="等待通知 WaitForSingleObject"></a>等待通知 WaitForSingleObject</h2><p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps15.jpg" alt="img"> </p>
+<p>该函数需要传递一个内核对象句柄，如果该内核对象处于未通知状态，则该函数导致线程进入阻塞状态；如果该内核对象处于已通知状态，则该函数立即返回<mark class="hl-label blue">WAIT_OBJECT_0</mark>  。第二个参数表明要等待的时间（毫秒），<mark class="hl-label blue">INFINITE</mark>  表示无限等待，如果第二个参数为0，表示函数立即返回。如果等待超时，该函数返回<mark class="hl-label blue">WAIT_TIMEOUT</mark>  。如果该函数调用失败，返回<mark class="hl-label blue">WAIT_FAILED</mark>  。</p>
+<blockquote>
+<ul>
+<li>等待的时间，如果是0表示立即执行线程函数，不阻塞；给某个数值，表示阻塞某个数值的时间，超过这个时间，会返回等待子线程终止超时，然后继续往下执行，解除阻塞；INFINITE表示一直阻塞，直到线程函数自己退出，才解除阻塞。</li>
+<li>内核对象句柄就是线程句柄。</li>
+<li><mark class="hl-label blue">线程函数还没结束，是未通知状态（无信号状态），会把程序阻塞，不让往下走；结束了，是已通知状态（有信号状态）</mark>  。</li>
+</ul>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">HANDLE hThread1 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="number">0</span>, ThreadFun1, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line"><span class="built_in">WaitForSingleObject</span>(hThread1, INFINITE);</span><br></pre></td></tr></table></figure>
+
+<h2 id="等待多个对象变为已通知"><a href="#等待多个对象变为已通知" class="headerlink" title="等待多个对象变为已通知"></a>等待多个对象变为已通知</h2><p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps16.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps17.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps18.jpg" alt="img"> </p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">HANDLE hThread1 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="number">0</span>, ThreadFun1, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">HANDLE hThread2 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="number">0</span>, ThreadFun2, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//无限等待两个线程全部执行完毕</span></span><br><span class="line">HANDLE harr[] = &#123; <span class="built_in">HANDLE</span>(hThread1),<span class="built_in">HANDLE</span>(hThread2) &#125;;</span><br><span class="line"><span class="built_in">WaitForMultipleObjects</span>(<span class="number">2</span>, harr, <span class="literal">true</span>, INFINITE);</span><br><span class="line"></span><br><span class="line"><span class="comment">//等待任意一个线程结束就返回数组索引</span></span><br><span class="line">HANDLE harr[] = &#123; <span class="built_in">HANDLE</span>(hThread1),<span class="built_in">HANDLE</span>(hThread2) &#125;;</span><br><span class="line">DWORD ret =<span class="built_in">WaitForMultipleObjects</span>(<span class="number">2</span>, harr, <span class="literal">false</span>, INFINITE);</span><br><span class="line"></span><br><span class="line"><span class="comment">//设置等待时间为1秒</span></span><br><span class="line">HANDLE harr[] = &#123; <span class="built_in">HANDLE</span>(hThread1),<span class="built_in">HANDLE</span>(hThread2) &#125;;</span><br><span class="line">DWORD ret=<span class="built_in">WaitForMultipleObjects</span>(<span class="number">2</span>, harr, <span class="literal">false</span>, <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="终止线程"><a href="#终止线程" class="headerlink" title="终止线程"></a>终止线程</h2><p>ExitThread只能退出当前线程，而TerminateThread能退出指定线程。</p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps19.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps20.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps21.jpg" alt="img">                                            </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps22.jpg" alt="img"> </p>
+<p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps23.jpg" alt="img"></p>
+<h2 id="获取线程退出码"><a href="#获取线程退出码" class="headerlink" title="获取线程退出码"></a>获取线程退出码</h2><p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps24.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps25.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps26.jpg" alt="img"></p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps27.jpg" alt="img"> </p>
+<h2 id="beginthread"><a href="#beginthread" class="headerlink" title="_beginthread"></a>_beginthread</h2><mark class="hl-label red">这个函数使用的线程函数指针和CreateThread使用的形式不一样！</mark>  
+
+<p>CreateThread函数是用来创建线程的Windows函数，不过，如果写C++，应该使用Visual C++运行期库函数_beginthread。</p>
+<p>在CreateThread创建的线程中使用sprintf,malloc,strcat等设计CRT存储堆操作的CRT库函数是<mark class="hl-label red">很危险的！</mark>  ，容易造成线程的意外终止。而使用_beginthread和_beginthreadex创建的线程可以安全的使用CRT函数，但是必须在线程结束的时候相应调用————_endthread或者__endthreadex。</p>
+<p>如果你在线程函数中进行了以下操作，就应该使用_endthread或者__endthreadex.</p>
+<ul>
+<li><p>使用malloc和free，或者new和delete</p>
+</li>
+<li><p>使用stdio.h或io.h里面声明的任何函数</p>
+</li>
+<li><p>使用浮点变量或浮点运算函数</p>
+</li>
+<li><p>调用任何一个使用了静态缓冲区的runtime函数，比如asctiome(),strtok(),rang()</p>
+<p>​                                    <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps28.jpg" alt="img"></p>
+<p>​                                    <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps29.jpg" alt="img"></p>
+<p>​                                    <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps30.jpg" alt="img"> </p>
+</li>
+</ul>
+<p>这个的线程函数调用约定是C的，而CreateThread是std的约定。</p>
+<p>​                                            <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps31.jpg" alt="img"></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;process.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun1</span><span class="params">(<span class="keyword">void</span> * param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">uintptr_t</span> t1 =_beginthread(ThreadFun1, <span class="number">0</span>, <span class="string">&quot;A&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">WaitForSingleObject</span>(<span class="built_in">HANDLE</span>(t1), INFINITE);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun1</span><span class="params">(<span class="keyword">void</span> * param)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> *name = (<span class="keyword">char</span> *)param;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="endthread"><a href="#endthread" class="headerlink" title="_endthread"></a>_endthread</h2><p>void __endthread(void);</p>
+<p>终止由__beginthread创建的线程。对于使用Libcmt.lib链接的可执行文件，不要调用win32 API的ExitThread，它无法释放已分配的资源。而endthread回收线程资源后调用ExitThread。endthread自动关闭线程句柄。</p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/image-20210714222506590.png" alt="image-20210714222506590"></p>
+<h1 id="同步和互斥"><a href="#同步和互斥" class="headerlink" title="同步和互斥"></a>同步和互斥</h1><h2 id="1-几个概念"><a href="#1-几个概念" class="headerlink" title="1. 几个概念"></a>1. 几个概念</h2><h3 id="1-1-并发"><a href="#1-1-并发" class="headerlink" title="1.1 并发"></a>1.1 并发</h3><p>在操作系统的一个时间段中，有几个程序同时处于启动运行到运行完毕之间的状态，且这几个程序都在同一个处理机上运行。</p>
+<p>并发又有伪并发和真并发：伪并发是指单核处理器的并发，真并发是指多核处理器的并发。</p>
+<h3 id="1-2-互斥"><a href="#1-2-互斥" class="headerlink" title="1.2 互斥"></a>1.2 互斥</h3><p>并发进程之间的制约关系有两种，即互斥和同步。</p>
+<p>多个并发进程之间，因竞争使用临界资源而互相排斥执行的间接制约关系，叫作互斥。</p>
+<h3 id="1-3-同步"><a href="#1-3-同步" class="headerlink" title="1.3 同步"></a>1.3 同步</h3><p>在某些地方，多个并发进程需要相互等待或交换信息而产生的直接制约关系，叫做同步。</p>
+<p>并发进程之间不是相互排斥临界资源，而是相互依赖的关系。进一步地说，同步关系就是前一个进程的输出作为后一个进程的输入；当第一个进程没有输出时，第二个进程必须等待。具有同步关系的一组并发进程，相互发送的信息称为消息或事件。</p>
+<p>下面是一个司机和售票员同步的例子：</p>
+<p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps33.jpg" alt="img"> </p>
+<h3 id="1-4-并行"><a href="#1-4-并行" class="headerlink" title="1.4 并行"></a>1.4 并行</h3><p>在单核处理器的多道程序环境中，进程被交替执行，表现出一种并发的外部特征；在多核处理器的多道程序环境中，进程不仅可以交替执行，还可以重叠执行，即并行。</p>
+<p>在多核处理器上，程序才可以实现并行处理。从而可知，并行是针对多核处理器而言。并行是同一时刻发生多个事件，具有并发的含义；但并发不一定并行，即并发事件之间不一定要同一时刻发生。</p>
+<h3 id="1-5-多线程"><a href="#1-5-多线程" class="headerlink" title="1.5 多线程"></a>1.5 多线程</h3><p>多线程是程序设计的逻辑层概念，它是进程中并发运行的一段代码。多线程可以实现线程间的切换执行。</p>
+<h3 id="1-6-异步"><a href="#1-6-异步" class="headerlink" title="1.6 异步"></a>1.6 异步</h3><p>异步与同步是相对的：同步是顺序执行进程，执行完一个进程再执行下一个进程，需要进程之间等待、协调运行；异步是进程之间彼此独立，在等待其他进程的运行时，本进程继续做自己的事，不需要等待其他进程完成后再工作。</p>
+<p>在多道程序环境下，进程以异步方式并发执行。</p>
+<p>异步与多线程不是同等关系：异步是最终目的，多线程只是我们实现异步的一种方式。异步是让调用方法的主线程不用同步等待另一线程的完成，主线程可以同时做其它事情。</p>
+<p>实现异步可以采用多线程技术或者交给另外的进程处理。</p>
+<h2 id="2-事例理解"><a href="#2-事例理解" class="headerlink" title="2. 事例理解"></a>2. 事例理解</h2><p>为了对以上概念更好地理解，举一个简单例子，假设我们要做烧开水，举杠铃100下， 洗衣服这3件事情。</p>
+<p>· 烧开水：准备烧开水（1分钟）， 等开水烧开（8分钟） , 关掉烧水机（1分钟）</p>
+<p>· 举杠铃100下：举杠铃100下（10分钟）</p>
+<p>· 洗衣服：准备洗衣服（1分钟）， 等衣服洗完（5分钟），关掉洗衣机（1分钟）</p>
+<h3 id="2-1-单核处理器"><a href="#2-1-单核处理器" class="headerlink" title="2.1 单核处理器"></a>2.1 单核处理器</h3><p>· 同步执行</p>
+<p>事情步骤安排：烧水：准备烧开水（1分钟）， 等开水烧开（8分钟） , 关掉烧水机（1分钟）；举杠铃100下：举杠铃100下（10分钟）；洗衣服：准备洗衣服（1分钟）， 等衣服洗完（5分钟），关掉洗衣机（1分钟）</p>
+<p>做完3件事，花费的时间t = 1+ 8 +1 + 10 + 1+ 5 +1 = 27（分钟）</p>
+<p>· 异步并行</p>
+<p>在等待事情执行时，我（单核）可以切换出去，做别的事情。</p>
+<p>事情步骤安排：准备烧开水(1分钟) + 准备洗衣服(1分钟) + 举50下杠铃 (5分钟)+ 关洗衣机（1分钟） + 举杠铃20下（2分钟）+ 关烧水机（1分钟） + 举30下杠铃(3分钟）</p>
+<p>在等待衣服洗完（5分钟）时，我（单核）执行举50下杠铃（5分钟）；在等待水烧开（8分钟）时，我（单核）执行举50下杠铃 (5分钟)+ 关洗衣机（1分钟） + 举杠铃20下（2分钟）。</p>
+<p>做完3件事，花费的时间t = 1 + 1 + 5 + 1 + 2 + 1 + 3 = 14（分钟）</p>
+<h3 id="2-2-双核处理器"><a href="#2-2-双核处理器" class="headerlink" title="2.2 双核处理器"></a>2.2 双核处理器</h3><p>· 异步并行</p>
+<p>核1：准备烧开水（1分钟）+ 举杠铃50下（5分钟）+ 等待（3分钟）+ 关掉烧水机 （1分钟）</p>
+<p>核2：准备洗衣服（1分钟）+ 举杠铃50下（5分钟）+ 关掉洗衣机（1分钟） + 等待（3分钟）</p>
+<p>其中，在等待水烧开（8分钟）时，核1执行举杠铃50下（5分钟），等待（3分钟）；在等待衣服洗完（5分钟）时，核2执行举杠铃50下（5分钟）。</p>
+<p>做完3件事，花费的时间t = 1 + 5 + 3 + 1 = 10（分钟），其中双核都等待了3分钟。</p>
+<p>· 异步非并行</p>
+<p>核1：举杠铃100下（10分钟）</p>
+<p>核2：准备烧开水（1分钟）+ 准备洗衣服（1分钟）+ 等待（6分钟）+ 关掉烧水机（1分钟）+ 关掉洗衣机（1分钟）</p>
+<p>其中，在等待水烧开（8分钟）时，核2执行准备烧开水（1分钟），准备洗衣服（1分钟），等待（6分钟）；在等待衣服洗完（5分钟）时，核2执行等待（6分钟）。</p>
+<p>做完3件事，花费的时间t =1 + 1 + 6 + 1 + 1 = 10（分钟）</p>
+<h3 id="2-3-多线程"><a href="#2-3-多线程" class="headerlink" title="2.3 多线程"></a>2.3 多线程</h3><p>· 单核处理器</p>
+<p>线程1：准备烧开水（1分钟）， 等水烧开（8分钟） , 关掉烧水机（1分钟）</p>
+<p>线程2：举杠铃100下（10分钟）</p>
+<p>线程3：准备洗衣服（1分钟）， 等水烧开（5 分钟） , 关掉洗衣机（1分钟）</p>
+<p>CPU最理想的切换方式：</p>
+<p>线程1：准备烧开水（1分钟）+ sleep 1 + sleep 5 + sleep 1 + sleep 2 + 关开水（1分钟）</p>
+<p>线程2：sleep 1+ sleep 1 + 举杠铃50（5分钟）+ sleep 1 + 举杠铃20（2分钟）+ sleep1 + 举杠铃30下（3分钟）</p>
+<p>线程3：sleep 1 + 准备洗衣服（1分钟）+ sleep 5 +关洗衣机（1分钟）</p>
+<p>最后使用了14分钟，与异步是一样的。但实际上是不一样的，因为线程不会按照我们设想的去跑。如果线程2举杠铃先跑，整个流程的速度就下来了。</p>
+<h3 id="2-4-异步和同步，多线程与异步，单核与多核的不同"><a href="#2-4-异步和同步，多线程与异步，单核与多核的不同" class="headerlink" title="2.4 异步和同步，多线程与异步，单核与多核的不同"></a>2.4 异步和同步，多线程与异步，单核与多核的不同</h3><p>异步和同步的区别：在IO等待时，同步不会切走，等待浪费了时间。</p>
+<p>多线程比较容易地实现了异步切换的思想， 因为多线程较容易写。多线程本身还是以同步完成，但是比不上异步的效率。</p>
+<p>多核的好处，就是可以同时做事情， 这个与单核不一样。如果都是独占CPU的作业，比如举杠铃。在单核情况下，多线程和单线程没有区别。</p>
+<h2 id="用户对象与内核对象"><a href="#用户对象与内核对象" class="headerlink" title="用户对象与内核对象"></a>用户对象与内核对象</h2><p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps35.jpg" alt="img"> </p>
+<p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps36.jpg" alt="img"> </p>
+<p>首先我们要解释一个概念——进程（Process）。简单来说，****一个可执行程序就是一个进程****，我们使用C语言编译生成的程序，运行后就是一个进程。进程最显著的特点就是拥有独立的地址空间。</p>
+<p>严格来说，程序是存储在磁盘上的一个文件，是指令和数据的集合，是一个****静态*<em><strong>的概念；进程是程序加载到内存运行后一些列的活动，是一个</strong></em>*动态****的概念。</p>
+<p>“程序的地址空间”的说法，这其实是不严谨的，应该说“进程的地址空间”。****一个进程对应一个地址空间，而一个程序可能会创建多个进程****。</p>
+<h2 id="内核模式和用户模式"><a href="#内核模式和用户模式" class="headerlink" title="内核模式和用户模式"></a>内核模式和用户模式</h2><p>内核空间存放的是操作系统内核代码和数据，是被所有程序****共享****的，在程序中修改内核空间中的数据不仅会影响操作系统本身的稳定性，还会影响其他程序，这是非常危险的行为，所以操作系统禁止用户程序直接访问内核空间。</p>
+<p>要想访问内核空间，必须借助操作系统提供的 API 函数，执行内核提供的代码，让内核自己来访问，这样才能保证内核空间的数据不会被随意修改，才能保证操作系统本身和其他程序的稳定性。</p>
+<p><em><strong>*用户程序调用系统 API 函数称为系统调用（System Call）；发生系统调用时会暂停用户程序，转而执行内核代码（内核也是程序），访问内核空间，这称为内核模式（Kernel Mode）。*</strong></em></p>
+<p><em><strong>*用户空间保存的是应用程序的代码和数据，是程序私有的，其他程序一般无法访问。当执行应用程序自己的代码时，称为用户模式（User Mode）。*</strong></em></p>
+<p>计算机会经常在内核模式和用户模式之间切换：<br>·当运行在用户模式的应用程序需要输入输出、申请内存等比较底层的操作时，就必须调用操作系统提供的 API 函数，从而进入内核模式；</p>
+<p>·操作完成后，继续执行应用程序的代码，就又回到了用户模式。</p>
+<p>总结：<em><strong>*用户模式就是执行应用程度代码，访问用户空间；内核模式就是执行内核代码，访问内核空间（当然也有权限访问用户空间）。*</strong></em></p>
+<h2 id="为什么要区分两种模式"><a href="#为什么要区分两种模式" class="headerlink" title="为什么要区分两种模式"></a>为什么要区分两种模式</h2><p>内核最主要的任务是管理硬件，包括显示器、键盘、鼠标、内存、硬盘等，并且内核也提供了接口（也就是函数），供上层程序使用。当程序要进行输入输出、分配内存、响应鼠标等与硬件有关的操作时，必须要使用内核提供的接口。但是用户程序是非常不安全的，内核对用户程序也是充分不信任的，当程序调用内核接口时，内核要做各种校验，以防止出错。</p>
+<p>从 Intel 80386 开始，出于安全性和稳定性的考虑，CPU 可以****运行在 ring0 ~ ring3 四个不同的权限级别****，也对数据提供相应的四个保护级别。不过 Linux 和 Windows 只利用了其中的两个运行级别：</p>
+<p>·一个是****内核模式，对应 ring0 级*<em><strong>，操作系统的核心部分和设备驱动都运行在该模式下。<br>·另一个是</strong></em>*用户模式，对应 ring3 级****，操作系统的用户接口部分（例如 Windows API）以及所有的用户程序都运行在该级别。</p>
+<h2 id="为什么内核和用户程序要共用地址空间"><a href="#为什么内核和用户程序要共用地址空间" class="headerlink" title="为什么内核和用户程序要共用地址空间"></a>为什么内核和用户程序要共用地址空间</h2><p>既然内核也是一个应用程序，为何不让它拥有独立的4GB地址空间，而是要和用户程序共享、占用有限的内存呢？</p>
+<p><em><strong>*让内核拥有完全独立的地址空间，就是让内核处于一个独立的进程中，这样每次进行系统调用都需要切换进程。切换进程的消耗是巨大的，不仅需要寄存器进栈出栈，还会使CPU中的数据缓存失效、MMU中的页表缓存失效，这将导致内存的访问在一段时间内相当低效。*</strong></em></p>
+<p>而让内核和用户程序共享地址空间，发生系统调用时进行的是模式切换，模式切换仅仅需要寄存器进栈出栈，不会导致缓存失效；现代CPU也都提供了快速进出内核模式的指令，与进程切换比起来，效率大大提高了。</p>
+<h1 id="模拟火车站售票系统"><a href="#模拟火车站售票系统" class="headerlink" title="模拟火车站售票系统"></a>模拟火车站售票系统</h1><p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/image-20210714222529718.png" alt="image-20210714222529718"></p>
+<h1 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h1><h2 id="临界区Critical-Section"><a href="#临界区Critical-Section" class="headerlink" title="临界区Critical Section"></a>临界区Critical Section</h2><p>每个线程中访问临界资源的那端程序称为临界区（Critical Section）每次只准一个线程进入临界区。进入后不允许其他线程进入。无论是硬件临界资源还是软件临界资源，多个线程必须互斥地对它进行访问。</p>
+<p><img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/image-20210714223353836.png" alt="image-20210714223353836"></p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps37.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps38.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps39.jpg" alt="img"></p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps40.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps41.jpg" alt="img"> </p>
+<p>​                                                <img src="/2021/06/20/%E5%A4%9A%E7%BA%BF%E7%A8%8B/wps42.jpg" alt="img"> </p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;process.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//1 临界区结构</span></span><br><span class="line">CRITICAL_SECTION section;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> tickets = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun1</span><span class="params">(<span class="keyword">void</span> * param)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun2</span><span class="params">(<span class="keyword">void</span> * param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//2 初始化临界区</span></span><br><span class="line">	<span class="built_in">InitializeCriticalSection</span>(&amp;section);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;开始卖票了！\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//创建两个售票窗口</span></span><br><span class="line">	<span class="keyword">uintptr_t</span> t1 = _beginthread(ThreadFun1, <span class="number">0</span>, <span class="string">&quot;售票窗口A&quot;</span>);</span><br><span class="line">	<span class="keyword">uintptr_t</span> t2 = _beginthread(ThreadFun2, <span class="number">0</span>, <span class="string">&quot;售票窗口B&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//无限等待两个线程全部执行完毕</span></span><br><span class="line">	HANDLE harr[] = &#123; <span class="built_in">HANDLE</span>(t1),<span class="built_in">HANDLE</span>(t2) &#125;;</span><br><span class="line">	<span class="built_in">WaitForMultipleObjects</span>(<span class="number">2</span>, harr, <span class="literal">true</span>, INFINITE);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;卖票结束！\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//5 删除临界区资源</span></span><br><span class="line">	<span class="built_in">DeleteCriticalSection</span>(&amp;section);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun1</span><span class="params">(<span class="keyword">void</span> * param)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> *name = (<span class="keyword">char</span> *)param;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (tickets &gt; <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//3 进入临界区，禁止其他线程访问</span></span><br><span class="line">		<span class="built_in">EnterCriticalSection</span>(&amp;section);</span><br><span class="line">		<span class="keyword">if</span> (tickets &gt; <span class="number">0</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">Sleep</span>(<span class="number">10</span>);</span><br><span class="line">			<span class="comment">//CPU恰好执行到这里，这个时候线程时间片到了，并且此时还剩最后一张票</span></span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;%s卖出第%d张票！\n&quot;</span>, name, tickets--);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//4 离开临界区</span></span><br><span class="line">		<span class="built_in">LeaveCriticalSection</span>(&amp;section);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun2</span><span class="params">(<span class="keyword">void</span> * param)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> *name = (<span class="keyword">char</span> *)param;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (tickets &gt; <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//3 进入临界区，禁止其他线程访问</span></span><br><span class="line">		<span class="built_in">EnterCriticalSection</span>(&amp;section);</span><br><span class="line">		<span class="keyword">if</span> (tickets &gt; <span class="number">0</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">Sleep</span>(<span class="number">10</span>);</span><br><span class="line">			<span class="comment">//CPU恰好执行到这里，这个时候线程时间片到了，并且此时还剩最后一张票</span></span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;%s卖出第%d张票！\n&quot;</span>, name, tickets--);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//4 离开临界区</span></span><br><span class="line">		<span class="built_in">LeaveCriticalSection</span>(&amp;section);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="线程死锁"><a href="#线程死锁" class="headerlink" title="线程死锁"></a>线程死锁</h3><p>死锁是指多个线程因竞争资源而造成的一种僵局（互相等待），若无外力作用，这些进程将无法想前推进。</p>
+<blockquote>
+<p>死锁产生的必要条件：</p>
+</blockquote>
+<ul>
+<li>互斥条件：一个资源每次只能被一个进程使用</li>
+<li>请求与保持条件：一个进程因请求资源而阻塞时，对已获得的资源保持不放</li>
+<li>不可剥夺条件：进程已获得的资源，在未使用完之前，不可强行剥夺</li>
+<li>循环等待条件：若干进程之间形成一种首尾相接的循环等待关系</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;process.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun1</span><span class="params">(<span class="keyword">void</span> * param)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun2</span><span class="params">(<span class="keyword">void</span> * param)</span></span>;</span><br><span class="line"></span><br><span class="line">CRITICAL_SECTION cs1;</span><br><span class="line">CRITICAL_SECTION cs2;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">InitializeCriticalSection</span>(&amp;cs1);</span><br><span class="line">	<span class="built_in">InitializeCriticalSection</span>(&amp;cs2);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">uintptr_t</span> t1 = _beginthread(ThreadFun1, <span class="number">0</span>, <span class="string">&quot;A&quot;</span>);</span><br><span class="line">	<span class="keyword">uintptr_t</span> t2 = _beginthread(ThreadFun2, <span class="number">0</span>, <span class="string">&quot;B&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//A在1区域，等着B从2区域出来</span></span><br><span class="line">	<span class="comment">//B在2区域，等着A从1区域出来</span></span><br><span class="line">	<span class="comment">//相互等待中，发生死锁</span></span><br><span class="line">	HANDLE harr[] = &#123; <span class="built_in">HANDLE</span>(t1),<span class="built_in">HANDLE</span>(t2) &#125;;</span><br><span class="line">	<span class="built_in">WaitForMultipleObjects</span>(<span class="number">2</span>, harr, <span class="literal">true</span>, INFINITE);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun1</span><span class="params">(<span class="keyword">void</span> * param)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> *name = (<span class="keyword">char</span> *)param;</span><br><span class="line">	<span class="comment">//进入1区域后，任何人无法进入1区域</span></span><br><span class="line">	<span class="built_in">EnterCriticalSection</span>(&amp;cs1);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%s进入了1区域,且睡眠了3秒！\n&quot;</span>, name);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">Sleep</span>(<span class="number">3000</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%s想进入2区域！\n&quot;</span>, name);</span><br><span class="line">	<span class="built_in">EnterCriticalSection</span>(&amp;cs2);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">LeaveCriticalSection</span>(&amp;cs2);</span><br><span class="line">	<span class="built_in">LeaveCriticalSection</span>(&amp;cs1);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadFun2</span><span class="params">(<span class="keyword">void</span> * param)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> *name = (<span class="keyword">char</span> *)param;</span><br><span class="line">	<span class="comment">//进入2区域后，任何人无法进入2区域</span></span><br><span class="line">	<span class="built_in">EnterCriticalSection</span>(&amp;cs2);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%s进入了2区域,且睡眠了3秒！\n&quot;</span>, name);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">Sleep</span>(<span class="number">3000</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%s想进入1区域！\n&quot;</span>, name);</span><br><span class="line">	<span class="built_in">EnterCriticalSection</span>(&amp;cs1);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">LeaveCriticalSection</span>(&amp;cs1);</span><br><span class="line">	<span class="built_in">LeaveCriticalSection</span>(&amp;cs2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="信号量-Semaphore"><a href="#信号量-Semaphore" class="headerlink" title="信号量 Semaphore"></a>信号量 Semaphore</h2>]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
       <tags>
-        <tag>Qt</tag>
         <tag>C++</tag>
       </tags>
   </entry>
@@ -655,6 +849,10 @@
 
 
 <h2 id="Qt-1"><a href="#Qt-1" class="headerlink" title="Qt"></a>Qt</h2><h3 id="写入文件"><a href="#写入文件" class="headerlink" title="写入文件"></a>写入文件</h3><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QMessageBox&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QFile&gt;</span></span></span><br><span class="line"><span class="comment">//实例QFile</span></span><br><span class="line"><span class="function">QFile <span class="title">file</span><span class="params">(<span class="string">&quot;D:/Qt.txt&quot;</span>)</span></span>;</span><br><span class="line"><span class="comment">//定义文件内容字符串</span></span><br><span class="line">QString content= <span class="string">&quot;写入文件的内容&quot;</span>;</span><br><span class="line"><span class="comment">//判断文件是否存在</span></span><br><span class="line"><span class="keyword">if</span>(file.<span class="built_in">exists</span>())</span><br><span class="line">&#123;</span><br><span class="line">    QMessageBox::<span class="built_in">warning</span>(<span class="keyword">this</span>,<span class="string">&quot;创建文件&quot;</span>,<span class="string">&quot;文件已经存在！&quot;</span>);</span><br><span class="line">&#125;<span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//存在打开，不存在创建</span></span><br><span class="line">    file.<span class="built_in">open</span>(QIODevice::ReadWrite | QIODevice::Text);</span><br><span class="line">    <span class="comment">//写入内容,这里需要转码，否则报错。</span></span><br><span class="line">    QByteArray str = content.<span class="built_in">toUtf8</span>();</span><br><span class="line">    <span class="comment">//写入QByteArray格式字符串</span></span><br><span class="line">    file.<span class="built_in">write</span>(str);</span><br><span class="line">    <span class="comment">//提示成功</span></span><br><span class="line">    QMessageBox::<span class="built_in">warning</span>(<span class="keyword">this</span>,<span class="string">&quot;创建文件&quot;</span>,<span class="string">&quot;文件创建成功！&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//关闭文件</span></span><br><span class="line">file.<span class="built_in">close</span>();</span><br></pre></td></tr></table></figure>
+
+<h3 id="打开多个文件"><a href="#打开多个文件" class="headerlink" title="打开多个文件"></a>打开多个文件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">QString strs;</span><br><span class="line">	QStringList file_list, output_name;</span><br><span class="line">	QStringList str_path_list = QFileDialog::getOpenFileNames(this, &quot;open file&quot;, &quot;/&quot;, &quot;cpr file(*.cpr);;All file(*.*)&quot;);</span><br><span class="line">	for (int i = 0; i &lt; str_path_list.size(); i++) &#123;</span><br><span class="line">		QString str_path = str_path_list[i];</span><br><span class="line">		//单个文件路径</span><br><span class="line">		qDebug() &lt;&lt; &quot;path=&quot; &lt;&lt; str_path;</span><br><span class="line">		QFileInfo file = QFileInfo(str_path);</span><br><span class="line">		//获得文件名</span><br><span class="line">		QString file_name = file.fileName();</span><br><span class="line">		file_list.append(str_path);</span><br><span class="line">		output_name.append(file_name);</span><br><span class="line">		strs.append(file_name);</span><br><span class="line">		strs += &quot;\n&quot;;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+
 
 <h3 id="打开文件夹，选择文件"><a href="#打开文件夹，选择文件" class="headerlink" title="打开文件夹，选择文件"></a>打开文件夹，选择文件</h3><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">QString m_srcDirpath = QFileDialog::<span class="built_in">getExistingDirectory</span>(</span><br><span class="line">                     <span class="keyword">this</span>, <span class="string">&quot;choose src Directory&quot;</span>,</span><br><span class="line">                      <span class="string">&quot;/&quot;</span>);</span><br><span class="line"></span><br><span class="line"> QString m_srcDirpath = QFileDialog::<span class="built_in">getOpenFileName</span>(<span class="keyword">this</span>,<span class="string">&quot;open file&quot;</span>,<span class="string">&quot;/&quot;</span>,<span class="string">&quot;text file(*.txt);;C file(*.cpp);;All file(*.*)&quot;</span>);</span><br><span class="line"><span class="comment">//定义变量str接收QFileDialog对话框获取的文件路径</span></span><br><span class="line">QString str = QFileDialog::<span class="built_in">getOpenFileName</span>(<span class="keyword">this</span>,<span class="string">&quot;open file&quot;</span>,<span class="string">&quot;/&quot;</span>,<span class="string">&quot;text file(*.txt);;C file(*.cpp);;All file(*.*)&quot;</span>);</span><br><span class="line"><span class="comment">//文件路径转换为utf8格式</span></span><br><span class="line">QString str_utf8 =str.<span class="built_in">toUtf8</span>();</span><br><span class="line"><span class="comment">//判断是否选择文件</span></span><br><span class="line"><span class="keyword">if</span>(str_utf8.<span class="built_in">isEmpty</span>())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -3572,6 +3770,15 @@
         <category>视频</category>
       </categories>
       <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>STL</title>
+    <url>/2021/07/13/STL/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script>]]></content>
+      <tags>
+        <tag>Qt</tag>
         <tag>C++</tag>
       </tags>
   </entry>
