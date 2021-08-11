@@ -275,6 +275,12 @@
 
 <h1 id="TextEdit中显示日文"><a href="#TextEdit中显示日文" class="headerlink" title="TextEdit中显示日文"></a>TextEdit中显示日文</h1><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">//设置文件路径</span></span><br><span class="line">    <span class="function">QFile <span class="title">file</span><span class="params">(m_sOpenPath.toUtf8())</span></span>;</span><br><span class="line">    <span class="comment">//判断文件是否打开成功</span></span><br><span class="line">    <span class="keyword">if</span> (!file.<span class="built_in">open</span>(QIODevice::ReadOnly | QIODevice::Text))</span><br><span class="line">    &#123;</span><br><span class="line">        QMessageBox::<span class="built_in">warning</span>(<span class="keyword">this</span>, QString::<span class="built_in">fromLocal8Bit</span>(<span class="string">&quot;打开文件&quot;</span>), QString::<span class="built_in">fromLocal8Bit</span>(<span class="string">&quot;打开文件失败！&quot;</span>));</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//文件流</span></span><br><span class="line">    <span class="function">QTextStream <span class="title">ts</span><span class="params">(&amp;file)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取文件中的数据</span></span><br><span class="line">    QString str_get;</span><br><span class="line">    <span class="comment">//就这句就这句，改变编码！！！！！！！！！！！！</span></span><br><span class="line">    ts.<span class="built_in">setCodec</span>(<span class="string">&quot;Shift-JIS&quot;</span>);</span><br><span class="line">    <span class="comment">//QTextCodec * codec = QTextCodec::codecForName(&quot;UTF-8&quot;);</span></span><br><span class="line">    <span class="comment">//循环文档数据至结尾</span></span><br><span class="line">    <span class="keyword">while</span> (!ts.<span class="built_in">atEnd</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//将全部数据绑定str_get</span></span><br><span class="line">        str_get = ts.<span class="built_in">readLine</span>();</span><br><span class="line">        ui.textEdit-&gt;<span class="built_in">append</span>(str_get);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//关闭文档</span></span><br><span class="line">    file.<span class="built_in">close</span>();</span><br><span class="line">TextEdit中是Unicode编码，可以直接显示日文，只要能读出来日文就行</span><br></pre></td></tr></table></figure>
 
+<h1 id="qt多显示器获取不同显示器的分辨率和位置"><a href="#qt多显示器获取不同显示器的分辨率和位置" class="headerlink" title="qt多显示器获取不同显示器的分辨率和位置"></a><a href="https://blog.csdn.net/x85371169/article/details/79351999">qt多显示器获取不同显示器的分辨率和位置</a></h1><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">QDesktopWidget *desktop = QApplication::<span class="built_in">desktop</span>();</span><br><span class="line"><span class="comment">//QRect screen1=desktop-&gt;screenGeometry(0);//主显示器</span></span><br><span class="line"><span class="comment">//QRect screen2=desktop-&gt;screenGeometry(1);//扩展显示器</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//获得当前程序所在屏幕的编号</span></span><br><span class="line"><span class="keyword">int</span> curWidgetScreenNum=desktop-&gt;<span class="built_in">screenNumber</span>(<span class="keyword">this</span>);</span><br><span class="line"><span class="comment">//当前程序所在屏幕的编号获取屏幕分辨率</span></span><br><span class="line">QRect rect = desktop-&gt;<span class="built_in">availableGeometry</span>(curWidgetScreenNum);</span><br><span class="line"><span class="built_in">move</span>(rect.<span class="built_in">x</span>(),rect.<span class="built_in">y</span>());</span><br><span class="line"><span class="built_in">resize</span>(rect.<span class="built_in">width</span>(), rect.<span class="built_in">height</span>());</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> QRect <span class="title">QDesktopWidget::screenGeometry</span><span class="params">(<span class="keyword">int</span> screen = <span class="number">-1</span>)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function"><span class="comment">//其中的参数就是显示器的id，默认是-1，如果是多个显示器，则显示器编号依次为0（主显示器）,1,2,3...，这个编号和你在设置里看到的编号没一点关系</span></span></span><br></pre></td></tr></table></figure>
+
+<p>desktop-&gt;screenGeometry(1)会把任务栏也算上，如果不想要任务栏的rect，可以使用availableGeometry函数</p>
+<p>在没创建widget的时候就想要获取一个分辨率信息用于初始化或者别的作用，可以通过 int curMonitor = desktop-&gt;primaryScreen(); 初始化显示器编号为主显示器的编号并由此获取主显示器的相关信息。curMonitor初始化为-1的时候获取到的也始终是主显示器的大小。</p>
 ]]></content>
       <tags>
         <tag>Qt</tag>
@@ -322,6 +328,9 @@
 <h2 id="经纬度计算角度"><a href="#经纬度计算角度" class="headerlink" title="经纬度计算角度"></a>经纬度计算角度</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;winsock.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;qmath.h&gt;</span></span></span><br><span class="line"><span class="comment">//没有下面这句，所有的通讯函数都将报错</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(lib,<span class="meta-string">&quot;ws2_32.lib&quot;</span>)<span class="comment">//必须链接这个库</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PI 3.1415926</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EARTH_RADIUS 6371.393        <span class="comment">//地球近似半径</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">getAzimuth</span><span class="params">(<span class="keyword">double</span> lat1, <span class="keyword">double</span> lng1, <span class="keyword">double</span> lat2, <span class="keyword">double</span> lng2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">double</span> dRotateAngle = <span class="built_in">atan2</span>(<span class="built_in">fabs</span>(lng1 - lng2), <span class="built_in">fabs</span>(lat1 - lat2));</span><br><span class="line">    <span class="keyword">if</span> (lng2 &gt;= lng1) &#123;</span><br><span class="line">        <span class="keyword">if</span> (lat2 &gt;= lat1) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            dRotateAngle = PI - dRotateAngle;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (lat2 &gt;= lat1) &#123;</span><br><span class="line">            dRotateAngle = <span class="number">2</span> * PI - dRotateAngle;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            dRotateAngle = PI + dRotateAngle;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    dRotateAngle = dRotateAngle * <span class="number">180</span> / PI;</span><br><span class="line">    <span class="keyword">return</span> dRotateAngle;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 ]]></content>
+      <categories>
+        <category>C++ Qt</category>
+      </categories>
       <tags>
         <tag>Qt</tag>
         <tag>C++</tag>
@@ -895,6 +904,9 @@
 <h2 id="char-转-int"><a href="#char-转-int" class="headerlink" title="char 转 int"></a>char 转 int</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*atoi()*</span><br></pre></td></tr></table></figure>
 
 ]]></content>
+      <categories>
+        <category>其他</category>
+      </categories>
       <tags>
         <tag>Qt</tag>
         <tag>C++</tag>
@@ -2410,6 +2422,9 @@
 <h1 id="自动类型转换"><a href="#自动类型转换" class="headerlink" title="自动类型转换"></a>自动类型转换</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">#if 0 自动类型转换</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	/*</span><br><span class="line">	将一个值赋给某一类型的变量时</span><br><span class="line">	表达式中有多种类型，会自动类型转换为取值范围最大的类型</span><br><span class="line">	当传递参数值到函数或者方法中时</span><br><span class="line">	*/</span><br><span class="line">	short s_v = 20;</span><br><span class="line">	int i_v = 20.3;</span><br><span class="line"></span><br><span class="line">	//传统C语言强制类型转换</span><br><span class="line">	// C++中的强制类型转换</span><br><span class="line">	// 强制类型转换操作符static_cast&lt;typeName&gt;(Var)</span><br><span class="line">	int x = 11;</span><br><span class="line">	char c&#123; (char)x &#125;;//传统C语言强制类型转换</span><br><span class="line">	int y = 98;</span><br><span class="line">	char c1&#123; char(y) &#125;;	// C++中的强制类型转换</span><br><span class="line">	char z = static_cast&lt;char&gt;(x);	// 强制类型转换操作符static_cast&lt;typeName&gt;(Var)</span><br><span class="line"></span><br><span class="line">	getchar();</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br><span class="line">#endif // 1 </span><br></pre></td></tr></table></figure>
 
 ]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
       <tags>
         <tag>Qt</tag>
         <tag>C++</tag>
@@ -4033,6 +4048,9 @@
 <p> Q3：什么情况下必须定义拷贝构造函数？</p>
 <p> A3：当类的对象用于函数值传递时（值参数，返回类对象），拷贝构造函数会被调用。如果对象复制并非简单的值拷贝，那就必须定义拷贝构造函数。例如大的堆栈数据拷贝。如果定义了拷贝构造函数，那也必须重载赋值操作符。</p>
 ]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
       <tags>
         <tag>Qt</tag>
         <tag>C++</tag>
@@ -4312,6 +4330,9 @@
 <p><img src="/2021/07/13/STL/wps149.jpg" alt="img"> </p>
 <p><img src="/2021/07/13/STL/wps150.jpg" alt="img"> </p>
 ]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
       <tags>
         <tag>C++</tag>
       </tags>
@@ -4370,6 +4391,15 @@
         <category>C++ 函数模板 类模板</category>
       </categories>
       <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>设计模式</title>
+    <url>/2021/08/11/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script>]]></content>
+      <tags>
+        <tag>Qt</tag>
         <tag>C++</tag>
       </tags>
   </entry>
