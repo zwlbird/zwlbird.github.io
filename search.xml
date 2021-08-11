@@ -282,6 +282,9 @@
 <p>desktop-&gt;screenGeometry(1)会把任务栏也算上，如果不想要任务栏的rect，可以使用availableGeometry函数</p>
 <p>在没创建widget的时候就想要获取一个分辨率信息用于初始化或者别的作用，可以通过 int curMonitor = desktop-&gt;primaryScreen(); 初始化显示器编号为主显示器的编号并由此获取主显示器的相关信息。curMonitor初始化为-1的时候获取到的也始终是主显示器的大小。</p>
 ]]></content>
+      <categories>
+        <category>Qt</category>
+      </categories>
       <tags>
         <tag>Qt</tag>
         <tag>C++</tag>
@@ -4397,7 +4400,10 @@
   <entry>
     <title>设计模式</title>
     <url>/2021/08/11/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script>]]></content>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id><a href="#" class="headerlink" title></a></h1>]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
       <tags>
         <tag>Qt</tag>
         <tag>C++</tag>
