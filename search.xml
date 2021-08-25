@@ -253,12 +253,138 @@
 
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/opencv.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> boost::filesystem;</span><br><span class="line"><span class="keyword">namespace</span> newfs = boost::filesystem;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> ** argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cv::Mat img_encode;</span><br><span class="line">    img_encode = <span class="built_in">imread</span>(<span class="string">&quot;../res/test.png&quot;</span>, CV_LOAD_IMAGE_COLOR);</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//encode image and save to file</span></span><br><span class="line">    std::vector&lt;uchar&gt; data_encode;</span><br><span class="line">    <span class="built_in">imencode</span>(<span class="string">&quot;.png&quot;</span>, img_encode, data_encode);</span><br><span class="line">    <span class="function">std::string <span class="title">str_encode</span><span class="params">(data_encode.begin(), data_encode.end())</span></span>;</span><br><span class="line"> </span><br><span class="line">    <span class="function">path <span class="title">p</span><span class="params">(<span class="string">&quot;../res/imgencode_cplus.txt&quot;</span>)</span></span>;</span><br><span class="line">    <span class="function">newfs::ofstream <span class="title">ofs</span><span class="params">(p)</span></span>;</span><br><span class="line">    <span class="built_in">assert</span>(ofs.<span class="built_in">is_open</span>());</span><br><span class="line">    ofs &lt;&lt; str_encode;</span><br><span class="line">    ofs.<span class="built_in">flush</span>();</span><br><span class="line">    ofs.<span class="built_in">close</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//read image encode file and display</span></span><br><span class="line">    <span class="function">newfs::fstream <span class="title">ifs</span><span class="params">(p)</span></span>;</span><br><span class="line">    <span class="built_in">assert</span>(ifs.<span class="built_in">is_open</span>());</span><br><span class="line">    std::stringstream sstr;</span><br><span class="line">    <span class="keyword">while</span>(ifs &gt;&gt; sstr.<span class="built_in">rdbuf</span>());</span><br><span class="line">    ifs.<span class="built_in">close</span>();</span><br><span class="line"> </span><br><span class="line">    Mat img_decode;</span><br><span class="line">    std::string str_tmp = sstr.<span class="built_in">str</span>();</span><br><span class="line">    <span class="function">std::vector&lt;uchar&gt; <span class="title">data</span><span class="params">(str_tmp.begin(), str_tmp.end())</span></span>;</span><br><span class="line">    img_decode = <span class="built_in">imdecode</span>(data, CV_LOAD_IMAGE_COLOR);</span><br><span class="line">    <span class="built_in">imshow</span>(<span class="string">&quot;pic&quot;</span>,img_decode);</span><br><span class="line">    <span class="built_in">cvWaitKey</span>(<span class="number">10000</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<h1 id="相机内部结构"><a href="#相机内部结构" class="headerlink" title="相机内部结构"></a>相机内部结构</h1><p><img src="/2021/07/13/opencv/0d965a865f13d3684fc3608041521792.JPEG" alt="img"></p>
+<h2 id="成像平面"><a href="#成像平面" class="headerlink" title="成像平面"></a>成像平面</h2><p>像平面是指成像平面，比如你可以理解为用胶片相机拍摄，那个胶卷就是像平面，要是用数码相机拍摄那么像平面就是CCD等感光元件。</p>
+<h2 id="光心"><a href="#光心" class="headerlink" title="光心"></a>光心</h2><p><img src="/2021/07/13/opencv/2fdda3cc7cd98d10fdc94c4a283fb80e7bec90a8" alt="img"></p>
+<h2 id="光轴"><a href="#光轴" class="headerlink" title="光轴"></a>光轴</h2><p>主光轴：通过两个球面球心的直线。</p>
+<p><img src="/2021/07/13/opencv/e850352ac65c10386e04e2deb9119313b07e89b7" alt="img"></p>
+<h2 id="像主点"><a href="#像主点" class="headerlink" title="像主点"></a>像主点</h2><p>光点做成像单元垂线，交点为像主点</p>
+<h1 id="相机成像原理"><a href="#相机成像原理" class="headerlink" title="相机成像原理"></a>相机成像原理</h1><p><img src="/2021/07/13/opencv/upload-images.jianshu.io&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg" alt="img"></p>
+<p>世界坐标系(world coordinate system)：用户定义的三维世界的坐标系，为了描述目标物在真实世界里的位置而被引入。单位为m。是客观三维世界的绝对坐标系，也称客观坐标系。因为数码相机安放在三维空间中，我们需要世界坐标系这个基准坐标系来描述数码相机的位置，并且用它来描述安放在此三维环境中的其它任何物体的位置，用（Xw, Yw, Zw）表示其坐标值。</p>
+<p>相机坐标系(camera coordinate system)（光心坐标系）：在相机上建立的坐标系，为了从相机的角度描述物体位置而定义，作为沟通世界坐标系和图像/像素坐标系的中间一环。单位为m。以相机的光心为坐标原点，X 轴和Y 轴分别平行于图像坐标系的 X 轴和Y 轴，相机的光轴为Z 轴，用（Xc, Yc, Zc）表示其坐标值。</p>
+<p>图像坐标系(image coordinate system)：为了描述成像过程中物体从相机坐标系到图像坐标系的投影透射关系而引入，方便进一步得到像素坐标系下的坐标。 以CCD 图像平面的中心为坐标原点，X轴和Y 轴分别平行于图像平面的两条垂直边，用( x , y )表示其坐标值。图像坐标系是用物理单位（例如毫米）表示像素在图像中的位置。</p>
+<p>像素坐标系(pixel coordinate system)：为了描述物体成像后的像点在数字图像上（相片）的坐标而引入，是我们真正从相机内读取到的信息所在的坐标系。单位为个（像素数目）。以 图像平面的左上角顶点为原点，X 轴和Y 轴分别平行于图像坐标系的 X 轴和Y 轴，用(u , v )表示其坐标值。数码相机采集的图像首先是形成标准电信号的形式，然后再通过模数转换变换为数字图像。每幅图像的存储形式是M × N的数组，M 行 N 列的图像中的每一个元素的数值代表的是图像点的灰度。这样的每个元素叫像素，像素坐标系就是以像素为单位的图像坐标系。</p>
+<p><img src="/2021/07/13/opencv/20161210141741307" alt="img">****</p>
+<h2 id="世界坐标系与相机坐标系–外参矩阵"><a href="#世界坐标系与相机坐标系–外参矩阵" class="headerlink" title="世界坐标系与相机坐标系–外参矩阵"></a>世界坐标系与相机坐标系–外参矩阵</h2><p><img src="/2021/07/13/opencv/20161210141917167" alt="img"></p>
+<p>于是，从世界坐标系到相机坐标系，涉及到旋转和平移（其实所有的运动也可以用旋转矩阵和平移向量来描述）。绕着不同的坐标轴旋转不同的角度，得到相应的旋转矩阵，如下图所示：</p>
+<p><img src="/2021/07/13/opencv/20161210142306747" alt="img"></p>
+<p>那么从世界坐标系到相机坐标系的转换关系如下所示：</p>
+<p><img src="/2021/07/13/opencv/20161210142437060" alt="img"></p>
+<h2 id="相机坐标系与图像坐标系–内参矩阵"><a href="#相机坐标系与图像坐标系–内参矩阵" class="headerlink" title="相机坐标系与图像坐标系–内参矩阵"></a>相机坐标系与图像坐标系–内参矩阵</h2><p>从相机坐标系到图像坐标系，属于透视投影关系，从3D转换到2D。</p>
+<p><img src="/2021/07/13/opencv/20161210142740999" alt="img"></p>
+<p>此时投影点p的单位还是mm，并不是pixel，需要进一步转换到像素坐标系。</p>
+<blockquote>
+<p>Oc是光点，p(x,y)所在平面为成像单元。</p>
+</blockquote>
+<h2 id="图像坐标系与像素坐标系–内参矩阵"><a href="#图像坐标系与像素坐标系–内参矩阵" class="headerlink" title="图像坐标系与像素坐标系–内参矩阵"></a>图像坐标系与像素坐标系–内参矩阵</h2><p>像素坐标系和图像坐标系都在成像平面上，只是各自的原点和度量单位不一样。图像坐标系的原点为相机光轴与成像平面的交点，通常情况下是成像平面的中点或者叫principal point。图像坐标系的单位是mm，属于物理单位，而像素坐标系的单位是pixel，我们平常描述一个像素点都是几行几列。所以这二者之间的转换如下：其中dx和dy表示每一列和每一行分别代表多少mm，即1pixel=dx mm</p>
+<p><img src="/2021/07/13/opencv/20161210143514044" alt="img"></p>
+<p>那么通过上面四个坐标系的转换就可以得到一个点从世界坐标系如何转换到像素坐标系的。</p>
+<p><img src="/2021/07/13/opencv/20161210144703071" alt="img"></p>
+<p>上述推导中有一个假设前提，就是相机的感光元件是正方形的，感光元件的安装也是通过光轴中心的，但这不可能，于是会出现以下两个问题：</p>
+<blockquote>
+<ol>
+<li>感光元件的基本单元不是方的，一个方形物体可能最后成像为一个矩形（甚至会有斜切效果，一般可以不考虑斜切因素）；这导致上述表达式中，dx与dy不相等</li>
+<li>感光元件的中心与光轴通过的主点不重合，会使得正常投影的图像发生了一点小小的位移。这导致上述表达式中，u0与v0可能并不等于成像传感器长宽尺寸的一半。（理想状态下就是一半）</li>
+</ol>
+</blockquote>
+<p>或者只合并等式右边前两个矩阵，得到下式：</p>
+<p><img src="/2021/07/13/opencv/20181014231908158" alt="img"></p>
+<p>一般习惯将矩阵：</p>
+<p><img src="/2021/07/13/opencv/20181014231925188" alt="img"></p>
+<p>称为<strong>内参矩阵</strong>（少了一列0）。</p>
+<blockquote>
+<p>内参矩阵的参数含义：<br>f：焦距，单位毫米，</p>
+<p>dx：像素x方向宽度，单位毫米，1/dx：x方向1毫米内有多少个像素</p>
+<p>dy：像素y方向宽度，单位毫米，1/dy：y方向1毫米内有多少个像素</p>
+<p><strong>f/dx：使用像素来描述x轴方向焦距的长度</strong></p>
+<p><strong>f/dy：使用像素来描述y轴方向焦距的长度</strong></p>
+<p><strong>u0,v0,像主点的实际位置，单位也是像素。</strong></p>
+<p>一般把后四个参数称为内参</p>
+</blockquote>
+<p>内参矩阵反应了相机自身的属性，各个相机是一不一样的，需要标定才能知道这些参数。</p>
+<p>最后用一幅图来总结从世界坐标系到像素坐标系（不考虑畸变）的转换关系：</p>
+<p>​                                                                                          <img src="/2021/07/13/opencv/20190217141619847.png" alt="img"></p>
+<h3 id="畸变参数"><a href="#畸变参数" class="headerlink" title="畸变参数"></a>畸变参数</h3><p><img src="/2021/07/13/opencv/20181205142610778.png" alt="img"></p>
+<h4 id="径向畸变"><a href="#径向畸变" class="headerlink" title="径向畸变"></a>径向畸变</h4><p>径向畸变（桶形畸变和枕形畸变）产生原因：光线在远离透镜中心的地方偏折更大。矫正公式：</p>
+<p><img src="/2021/07/13/opencv/image-20210823161431486.png" alt="image-20210823161431486"></p>
+<p><img src="/2021/07/13/opencv/20181205142652925.png" alt="img"></p>
+<h4 id="切向畸变"><a href="#切向畸变" class="headerlink" title="切向畸变"></a>切向畸变</h4><p>切向畸变产生原因：透镜不完全平行于图像平面。矫正公式：</p>
+<p><img src="/2021/07/13/opencv/image-20210823161503898.png" alt="image-20210823161503898"></p>
+<p>由此得到相机的5个畸变参数：D( k1 , k2 , k3 , p1 , p2 ) </p>
+<h1 id="双目测距"><a href="#双目测距" class="headerlink" title="双目测距"></a>双目测距</h1><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="视差"><a href="#视差" class="headerlink" title="视差"></a>视差</h3><p>在谈到双目成像时，首先出现的一个概念就是视差，网上有人用过一个很简单的形式来描述视差，即将人眼想象成双目相机，竖起一根手指放在前方作为目标，分别闭上左眼或右眼去观察目标，我们发现目标在不同成像平面中的位置移动了，这个像素位置的差异值就是视差。</p>
+<p><img src="/2021/07/13/opencv/81b8d621f00afa4ea655a67f442add0c.png" alt="img"></p>
+<p>在上面这张图中，左右两幅图分别表示左右相机的成像平面，假设一个目标在左视图的成像点落在第二列蓝色区域，在右视图的成像点落在第五列蓝色区域，视差值即为3。</p>
+<h3 id="极点、极线、极平面"><a href="#极点、极线、极平面" class="headerlink" title="极点、极线、极平面"></a>极点、极线、极平面</h3><p><img src="/2021/07/13/opencv/731648eca31c226a4aead3acc6a8ad3b.png" alt="img"></p>
+<p>假设空间一点P投影到左视图像平面上，成像点PL；投影到右视图像平面上，成像点PR。两个相机光心的连线CL-CR与像平面的交点eL和eR称为极点。物点P与左右相机光心CL、CR组成的平面称为极平面。而极平面与相机的像平面交线称为极线。</p>
+<h3 id="极线约束"><a href="#极线约束" class="headerlink" title="极线约束"></a>极线约束</h3><p>指三维空间中一点P，当投影到左视图P’位置后，必然能在右视图的极线上匹配到该点。该约束将二维空间中的逐点搜索降维到一维直线上的搜索，减少了算法耗时并提高匹配精度。</p>
+<h2 id="双目测距原理"><a href="#双目测距原理" class="headerlink" title="双目测距原理"></a>双目测距原理</h2><p><img src="/2021/07/13/opencv/v2-b071eefd97d760021666cbd9b0d443ba_720w.jpg" alt="img"></p>
+<blockquote>
+<p>左成像点：PL</p>
+<p>右成像点：PR</p>
+<p>左光心 OL</p>
+<p>右光心 OR</p>
+<p>景物点 P</p>
+<p>基线b：两个摄像头光圈中心之间的距离</p>
+<p>左侧像主点与左侧成像点距离 uL</p>
+<p>右侧像主点与右侧成像点距离 |uR|：uR为负数，但是经过取绝对值后，就变成了整数</p>
+<p>景物点与光心的距离 z</p>
+<p>焦距f：像主点与光心的距离</p>
+<p>视差d ：uL+|uR|</p>
+<p>两个三角形 P-PL-PR 与 P-OL-OR</p>
+<p>两个三角形之间是相似三角形关系</p>
+<p>(b-uL-uR)/b=(z-f)/z 可推导出：z=fb/d 从而得出深度z</p>
+</blockquote>
+<p><img src="/2021/07/13/opencv/20180109101831618" alt="img"></p>
+<p>上图中的人和椰子树，人在前，椰子树在后，最下方是双目相机中的成像。其中，右侧相机成像中人在树的左侧，左侧相机成像中人在树的右侧，这是因为双目的角度不一样。再通过对比两幅图像就可以知道人眼观察树的时候视差小，而观察人时视差大。因为树的距离远，人的距离近。这就是双目三角测距的原理。双目系统对目标物体距离感知是一种绝对的测量，而非估算。</p>
+<h3 id="理想双目相机成像模型"><a href="#理想双目相机成像模型" class="headerlink" title="理想双目相机成像模型"></a>理想双目相机成像模型</h3><p><img src="/2021/07/13/opencv/20180109202525718" alt="img"></p>
+<p><img src="/2021/07/13/opencv/20180109130121074" alt="img"></p>
+<p>根据上述推导，<strong>要求得空间点P离相机的距离（深度）z</strong>，必须知道：<br>1、相机焦距f，左右相机基线b（可以通过先验信息或者相机标定得到）。<br>2、视差 ：<img src="/2021/07/13/opencv/20180109204250788" alt="img">，即左相机像素点(xl, yl)和右相机中对应点(xr, yr)的关系，这是双目视觉的核心问题。</p>
+<h3 id="非理想情况"><a href="#非理想情况" class="headerlink" title="非理想情况"></a>非理想情况</h3><p>上面是两相机共面且光轴平行，参数相同的理想情况，当相机O1，O2不是在同一直线上怎么办呢？事实上，这种情况非常常见，因为有些场景下两个相机需要独立固定，很难保证光心完全水平，即使固定在同一个基板上也会由于装配的原因导致光心不完全水平，如下图所示：两个相机的极线不平行，并且不共面。</p>
+<p><img src="/2021/07/13/opencv/20190528200527830.png" alt="img"></p>
+<p>这种情况下拍摄的两张左右图片，如下图所示。</p>
+<p>左图中三个十字标志的点，右图中对应的极线是右图中的三条白色直线，也就是对应的搜索区域。我们看到这三条直线并不是水平的，如果进行逐点搜索效率非常低。</p>
+<p><img src="/2021/07/13/opencv/20180109130819436" alt="img"></p>
+<h4 id="图像矫正技术"><a href="#图像矫正技术" class="headerlink" title="图像矫正技术"></a>图像矫正技术</h4><p>图像矫正包括畸变校正和立体校正两个过程。</p>
+<p>图像的畸变校正通过张正友标定法计算出相机的4个内参fx，fy，cx，cy和5个畸变系数k1，k2，k3，p1，p2，进一步解决相机的枕形畸变和桶形畸变。</p>
+<p>立体校正的过程是利用两颗相机之间的外参即旋转平移矩阵以及透视投影矩阵，对两幅图像进行极线校正，将图象平面重投影到平行于光心线的公共平面上，如下图所示，将原始的灰色像平面纠正到黄色位置。</p>
+<p><img src="/2021/07/13/opencv/20180109130653942" alt="img"></p>
+<p>经过图像矫正后，左图中的像素点只需要沿着水平的极线方向搜索对应点就可以了。从下图中我们可以看到三个点对应的视差（红色双箭头线段）是不同的，越远的物体视差越小，越近的物体视差越大。</p>
+<p><img src="/2021/07/13/opencv/20180109130913869" alt="img"></p>
+<p><img src="/2021/07/13/opencv/20180109224858677" alt="img"></p>
+<p>上面的主要工作是在极线上寻找匹配点，但是由于要保证两个相机参数完全一致是不现实的，并且外界光照变化和视角不同的影响，使得单个像素点鲁棒性很差。所以匹配工作是一项很重要的事情，这也关系着双目视觉测距的准确性。</p>
+<h4 id="对上述校准必要性的解释"><a href="#对上述校准必要性的解释" class="headerlink" title="对上述校准必要性的解释"></a>对上述校准必要性的解释</h4><p><img src="/2021/07/13/opencv/20180927142535616" alt="img"></p>
+<p>图中可以得出的结论<br>1.深度变化(EG*EF/(AB+CD)或者H到EF的距离)，会导致AB,CD和AB+CD的变化，这里不过多强调AB,CD的变化，只讨论AB+CD，这个原因后边会提到。当深度变大时，AB+CD逐渐变小。<br>从公式（公式看不懂没关系，它只是我推导的，大家也可以自己推一下，推导是三角形的比例关系）<br>AC=EF-AB-DC<br>设Z为深度<br>那么AC/EF=(Z-EG)/Z<br>这样就可以推导出来了。<br><img src="/2021/07/13/opencv/2018092714340048" alt="img"></p>
+<p>从这个图我们就可以明显看出只要我们的深度不变，那么我们的AB+CD也就不会改变，可以看出，深度和单独的AB与CD没有直接关系，而只与两者的和有关。</p>
+<p>AB+CD 与同一距离的 视差 是想等的。  </p>
+<p>AB + DC = XR - XT  </p>
+<p>注意此处 AB DC 用向量相加  （AB + DC =  =  (Bx-Ax）+ (Cx - Dx)   【Bx 为左图像的中点x, Dx为右图像的中点x  Ax,Cx为两幅图同一特征点的x坐标】</p>
+<p>XR - XT = XRx - XTx  (XRx 与 XTx 分别是两幅图同一特征点的x坐标)</p>
+<h2 id="双目测距操作流程"><a href="#双目测距操作流程" class="headerlink" title="双目测距操作流程"></a>双目测距操作流程</h2><blockquote>
+<p>双目测距实际操作分4个步骤：相机标定——双目校正——双目匹配——计算深度信息。</p>
+</blockquote>
+<p><strong>相机标定（得到内外参数）：</strong>摄像头由于光学透镜的特性使得成像存在着径向畸变，可由三个参数k1,k2,k3确定；由于装配方面的误差，传感器与光学镜头之间并非完全平行，因此成像存在切向畸变，可由两个参数p1,p2确定。单个摄像头的定标主要是计算出摄像头的内参（焦距f和成像原点cx,cy、五个畸变参数（一般只需要计算出k1,k2,p1,p2，对于鱼眼镜头等径向畸变特别大的才需要计算k3））以及外参（标定物的世界坐标）。而双目摄像头定标不仅要得出每个摄像头的内部参数，还需要通过标定来测量两个摄像头之间的相对位置（即右摄像头相对于左摄像头的旋转矩阵R、平移向量t）。</p>
+<p><strong>双目校正（通过内参做畸变校正和立体校正将两张图片转换到同一平面）：</strong>双目校正是根据摄像头定标后获得的单目内参数据（焦距、成像原点、畸变系数）和双目相对位置关系（旋转矩阵和平移向量），分别对左右视图进行消除畸变和行对准，使得左右视图的成像原点坐标一致（CV_CALIB_ZERO_DISPARITY标志位设置时发生作用）、两摄像头光轴平行、左右成像平面共面、对极线行对齐。这样一幅图像上任意一点与其在另一幅图像上的对应点就必然具有相同的行号，只需在该行进行一维搜索即可匹配到对应点。</p>
+<p><strong>双目匹配（对校正后的两张图片根据极线约束进行像素配准）：</strong>双目匹配的作用是把同一场景在左右视图上对应的像点匹配起来，这样做的目的是为了得到视差图。双目匹配被普遍认为是立体视觉中最困难也是最关键的问题。得到视差数据，通过上述原理中的公式就可以很容易的计算出深度信息。</p>
+<p><strong>计算深度信息：</strong>根据配准结构计算每个像素的深度从而获得深度图</p>
+<h3 id="相机标定"><a href="#相机标定" class="headerlink" title="相机标定"></a>相机标定</h3><p>相机标定的目的和意义<br>我们所处的世界是三维的，而照片是二维的，这样我们可以把相机认为是一个函数，输入量是一个场景，输出量是一幅灰度图。这个从三维到二维的过程的函数是不可逆的。</p>
+<p>​                                  <img src="/2021/07/13/opencv/20190217111704113.png" alt="img"></p>
+<p>相机标定的目标是我们找一个合适的数学模型，求出这个模型的参数，这样我们能够近似这个三维到二维的过程，使这个三维到二维的过程的函数找到反函数。</p>
+<p><img src="/2021/07/13/opencv/20190217111736474.png" alt="img"></p>
+<p>相机标定就是确定相机的内部参数和外部参数。就是从世界坐标系转换为相机坐标系，再由相机坐标系转换为图像坐标系的过程，也就是求最终的投影矩阵P的过程。</p>
+<h2 id="难点"><a href="#难点" class="headerlink" title="难点"></a>难点</h2><p>对环境光照非常敏感。双目立体视觉法依赖环境中的自然光线采集图像，而由于光照角度变化、光照强度变化等环境因素的影响，拍摄的两张图片亮度差别会比较大，这会对匹配算法提出很大的挑战。</p>
+<p><img src="/2021/07/13/opencv/20180110112507683" alt="img"></p>
+<p><img src="/2021/07/13/opencv/20180110112525720" alt="img"></p>
+<p>不适用于单调缺乏纹理的场景。由于双目立体视觉法根据视觉特征进行图像匹配，所以对于缺乏视觉特征的场景（如天空、白墙、沙漠等）会出现匹配困难，导致匹配误差较大甚至匹配失败。</p>
+<p><img src="/2021/07/13/opencv/20180110112551527" alt="img"></p>
+<p>计算复杂度高。该方法需要逐像素匹配；又因为上述多种因素的影响，为保证匹配结果的鲁棒性，需要在算法中增加大量的错误剔除策略，因此对算法要求较高，想要实现可靠商用难度大，计算量较大。</p>
+<p>相机基线限制了测量范围。测量范围和基线（两个摄像头间距）关系很大：基线越大，测量范围越远；基线越小，测量范围越近。所以基线在一定程度上限制了该深度相机的测量范围。</p>
 ]]></content>
       <categories>
-        <category>opencv</category>
+        <category>opencv 相机</category>
       </categories>
       <tags>
         <tag>C++</tag>
+        <tag>python</tag>
       </tags>
   </entry>
   <entry>
@@ -343,7 +469,7 @@
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;<span class="number">1</span>,<span class="number">8</span>,<span class="number">5</span>,<span class="number">2</span>,<span class="number">47</span>&#125; 集合</span><br><span class="line">&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">47</span>&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>[<span class="number">1</span>,<span class="number">8</span>,<span class="number">5</span>,<span class="number">2</span>,<span class="number">47</span>] 列表</span><br><span class="line">[<span class="number">1</span>, <span class="number">8</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">47</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;<span class="number">1</span>:<span class="number">1</span>,<span class="number">24</span>:<span class="number">8</span>,<span class="number">8</span>:<span class="number">5</span>,<span class="number">3</span>:<span class="number">2</span>,<span class="number">4</span>:<span class="number">47</span>&#125; 字典</span><br><span class="line">&#123;<span class="number">1</span>: <span class="number">1</span>, <span class="number">24</span>: <span class="number">8</span>, <span class="number">8</span>: <span class="number">5</span>, <span class="number">3</span>: <span class="number">2</span>, <span class="number">4</span>: <span class="number">47</span>&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2021/07/13/python/image-20210814224056565.png" alt="image-20210814224056565"></p>
-<h1 id="1111111"><a href="#1111111" class="headerlink" title="1111111"></a>1111111</h1><h2 id="普通可变参数列表"><a href="#普通可变参数列表" class="headerlink" title="普通可变参数列表"></a>普通可变参数列表</h2><p><img src="/2021/07/13/python/image-20210814230439227.png" alt="image-20210814230439227"></p>
+<h1 id="python"><a href="#python" class="headerlink" title="python"></a>python</h1><h2 id="普通可变参数列表"><a href="#普通可变参数列表" class="headerlink" title="普通可变参数列表"></a>普通可变参数列表</h2><p><img src="/2021/07/13/python/image-20210814230439227.png" alt="image-20210814230439227"></p>
 <p>tuple要用下面的关键字可变参数列表</p>
 <h2 id="关键字可变参数列表"><a href="#关键字可变参数列表" class="headerlink" title="关键字可变参数列表"></a>关键字可变参数列表</h2><p><img src="/2021/07/13/python/image-20210814231026930.png" alt="image-20210814231026930"></p>
 <p><img src="/2021/07/13/python/image-20210814231204548.png" alt="image-20210814231204548"></p>
