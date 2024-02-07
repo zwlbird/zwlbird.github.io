@@ -1,0 +1,435 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OpenGL-highlevel | .oOo.</title><meta name="keywords" content="C++"><meta name="author" content="Smt"><meta name="copyright" content="Smt"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="深度测试在[坐标系统](https:&#x2F;&#x2F;learnopengl-cn.github.io&#x2F;01 Getting started&#x2F;08 Coordinate Systems&#x2F;)小节中，我们渲染了一个3D箱子，并且运用了深度缓冲(Depth Buffer)来防止被阻挡的面渲染到其它面的前面。在这一节中，我们将会更加深入地讨论这些储存在深度缓冲（或z缓冲(z-buffer)）中的深度值(Depth Va">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenGL-highlevel">
+<meta property="og:url" content="https://zwlbird.github.io/2021/10/19/OpenGL-highlevel/index.html">
+<meta property="og:site_name" content=".oOo.">
+<meta property="og:description" content="深度测试在[坐标系统](https:&#x2F;&#x2F;learnopengl-cn.github.io&#x2F;01 Getting started&#x2F;08 Coordinate Systems&#x2F;)小节中，我们渲染了一个3D箱子，并且运用了深度缓冲(Depth Buffer)来防止被阻挡的面渲染到其它面的前面。在这一节中，我们将会更加深入地讨论这些储存在深度缓冲（或z缓冲(z-buffer)）中的深度值(Depth Va">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/12/12/zb5QarqSYDHWZs6.jpg">
+<meta property="article:published_time" content="2021-10-19T13:35:33.000Z">
+<meta property="article:modified_time" content="2023-12-12T09:30:45.667Z">
+<meta property="article:author" content="Smt">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2023/12/12/zb5QarqSYDHWZs6.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://zwlbird.github.io/2021/10/19/OpenGL-highlevel/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'OpenGL-highlevel',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-12-12 17:30:45'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">26</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fas fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2023/12/12/zb5QarqSYDHWZs6.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">.oOo.</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fas fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">OpenGL-highlevel</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-19T13:35:33.000Z" title="发表于 2021-10-19 21:35:33">2021-10-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-12-12T09:30:45.667Z" title="更新于 2023-12-12 17:30:45">2023-12-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/OpenGL/">OpenGL</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">7.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>22分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="OpenGL-highlevel"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/2021/10/19/OpenGL-highlevel/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/2021/10/19/OpenGL-highlevel/" itemprop="commentCount"></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="深度测试"><a href="#深度测试" class="headerlink" title="深度测试"></a>深度测试</h1><p>在[坐标系统](<a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/01">https://learnopengl-cn.github.io/01</a> Getting started/08 Coordinate Systems/)小节中，我们渲染了一个3D箱子，并且运用了深度缓冲(Depth Buffer)来防止被阻挡的面渲染到其它面的前面。在这一节中，我们将会更加深入地讨论这些储存在深度缓冲（或z缓冲(z-buffer)）中的深度值(Depth Value)，以及它们是如何确定一个片段是处于其它片段后方的。</p>
+<p>深度缓冲就像颜色缓冲(Color Buffer)（储存所有的片段颜色：视觉输出）一样，在每个片段中储存了信息，并且（通常）和颜色缓冲有着一样的宽度和高度。深度缓冲是由窗口系统自动创建的，它会以16、24或32位float的形式储存它的深度值。在大部分的系统中，深度缓冲的精度都是24位的。</p>
+<p>当深度测试(Depth Testing)被启用的时候，OpenGL会将一个片段的深度值与深度缓冲的内容进行对比。OpenGL会执行一个深度测试，如果这个测试通过了的话，深度缓冲将会更新为新的深度值。如果深度测试失败了，片段将会被丢弃。</p>
+<p>深度缓冲是在片段着色器运行之后（以及模板测试(Stencil Testing)运行之后，我们将在[下一节](<a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/04">https://learnopengl-cn.github.io/04</a> Advanced OpenGL/02 Stencil testing/)中讨论）在屏幕空间中运行的。屏幕空间坐标与通过OpenGL的glViewport所定义的视口密切相关，并且可以直接使用GLSL内建变量gl_FragCoord从片段着色器中直接访问。gl_FragCoord的x和y分量代表了片段的屏幕空间坐标（其中(0, 0)位于左下角）。gl_FragCoord中也包含了一个z分量，它包含了片段真正的深度值。z值就是需要与深度缓冲内容所对比的那个值。</p>
+<blockquote>
+<p>现在大部分的GPU都提供一个叫做提前深度测试(Early Depth Testing)的硬件特性。提前深度测试允许深度测试在片段着色器之前运行。只要我们清楚一个片段永远不会是可见的（它在其他物体之后），我们就能提前丢弃这个片段。</p>
+<p>片段着色器通常开销都是很大的，所以我们应该尽可能避免运行它们。当使用提前深度测试时，片段着色器的一个限制是你不能写入片段的深度值。如果一个片段着色器对它的深度值进行了写入，提前深度测试是不可能的。OpenGL不能提前知道深度值。</p>
+</blockquote>
+<p>深度测试默认是禁用的，所以如果要启用深度测试的话，我们需要用GL_DEPTH_TEST选项来启用它：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">glEnable</span>(GL_DEPTH_TEST);</span><br></pre></td></tr></table></figure>
+
+<p>当它启用的时候，如果一个片段通过了深度测试的话，OpenGL会在深度缓冲中储存该片段的z值；如果没有通过深度缓冲，则会丢弃该片段。如果你启用了深度缓冲，你还应该在每个渲染迭代之前使用GL_DEPTH_BUFFER_BIT来清除深度缓冲，否则你会仍在使用上一次渲染迭代中的写入的深度值：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">glClear</span>(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</span><br></pre></td></tr></table></figure>
+
+<p>可以想象，在某些情况下你会需要对所有片段都执行深度测试并丢弃相应的片段，但<strong>不</strong>希望更新深度缓冲。基本上来说，你在使用一个只读的(Read-only)深度缓冲。OpenGL允许我们禁用深度缓冲的写入，只需要设置它的深度掩码(Depth Mask)设置为<code>GL_FALSE</code>就可以了：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">glDepthMask</span>(GL_FALSE);</span><br></pre></td></tr></table></figure>
+
+<p>注意这只在深度测试被启用的时候才有效果。</p>
+<h2 id="深度测试函数"><a href="#深度测试函数" class="headerlink" title="深度测试函数"></a>深度测试函数</h2><p>OpenGL允许我们修改深度测试中使用的比较运算符。这允许我们来控制OpenGL什么时候该通过或丢弃一个片段，什么时候去更新深度缓冲。我们可以调用glDepthFunc函数来设置比较运算符（或者说深度函数(Depth Function)）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">glDepthFunc(GL_LESS);</span><br></pre></td></tr></table></figure>
+
+<p>这个函数接受下面表格中的比较运算符：</p>
+<table>
+<thead>
+<tr>
+<th align="left">函数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">GL_ALWAYS</td>
+<td align="left">永远通过深度测试</td>
+</tr>
+<tr>
+<td align="left">GL_NEVER</td>
+<td align="left">永远不通过深度测试</td>
+</tr>
+<tr>
+<td align="left">GL_LESS</td>
+<td align="left">在片段深度值小于缓冲的深度值时通过测试</td>
+</tr>
+<tr>
+<td align="left">GL_EQUAL</td>
+<td align="left">在片段深度值等于缓冲区的深度值时通过测试</td>
+</tr>
+<tr>
+<td align="left">GL_LEQUAL</td>
+<td align="left">在片段深度值小于等于缓冲区的深度值时通过测试</td>
+</tr>
+<tr>
+<td align="left">GL_GREATER</td>
+<td align="left">在片段深度值大于缓冲区的深度值时通过测试</td>
+</tr>
+<tr>
+<td align="left">GL_NOTEQUAL</td>
+<td align="left">在片段深度值不等于缓冲区的深度值时通过测试</td>
+</tr>
+<tr>
+<td align="left">GL_GEQUAL</td>
+<td align="left">在片段深度值大于等于缓冲区的深度值时通过测试</td>
+</tr>
+</tbody></table>
+<p>默认情况下使用的深度函数是GL_LESS，它将会丢弃深度值大于等于当前深度缓冲值的所有片段。</p>
+<p>让我们看看改变深度函数会对视觉输出有什么影响。我们将使用一个新的代码配置，它会显示一个没有光照的基本场景，里面有两个有纹理的立方体，放置在一个有纹理的地板上。你可以在<a target="_blank" rel="noopener" href="https://learnopengl.com/code_viewer_gh.php?code=src/4.advanced_opengl/1.1.depth_testing/depth_testing.cpp">这里</a>找到源代码。</p>
+<p>在源代码中，我们将深度函数改为GL_ALWAYS：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">glEnable(GL_DEPTH_TEST);</span><br><span class="line">glDepthFunc(GL_ALWAYS);</span><br></pre></td></tr></table></figure>
+
+<p>这将会模拟我们没有启用深度测试时所得到的结果。深度测试将会永远通过，所以最后绘制的片段将会总是会渲染在之前绘制片段的上面，即使之前绘制的片段本就应该渲染在最前面。因为我们是最后渲染地板的，它会覆盖所有的箱子片段：</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/depth_testing_func_always.png" alt="img"></p>
+<p>将它重新设置为GL_LESS，这会将场景还原为原有的样子：</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/depth_testing_func_less.png" alt="img"></p>
+<h2 id="深度值精度"><a href="#深度值精度" class="headerlink" title="深度值精度"></a>深度值精度</h2><p>深度缓冲包含了一个介于0.0和1.0之间的深度值，它将会与观察者视角所看见的场景中所有物体的z值进行比较。观察空间的z值可能是投影平截头体的<strong>近平面</strong>(Near)和<strong>远平面</strong>(Far)之间的任何值。我们需要一种方式来将这些观察空间的z值变换到[0, 1]范围之间，其中的一种方式就是将它们线性变换到[0, 1]范围之间。下面这个（线性）方程将z值变换到了0.0到1.0之间的深度值：<br>$$<br>Fdepth=(z−near)/(far−near)<br>$$<br>这里的nearnear和farfar值是我们之前提供给投影矩阵设置可视平截头体的（见[坐标系统](<a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/01">https://learnopengl-cn.github.io/01</a> Getting started/08 Coordinate Systems/)）那个 <em>near</em> 和 <em>far</em> 值。这个方程需要平截头体中的一个z值，并将它变换到了[0, 1]的范围中。z值和对应的深度值之间的关系可以在下图中看到：</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/depth_linear_graph.png" alt="img"></p>
+<blockquote>
+<p>注意所有的方程都会将非常近的物体的深度值设置为接近0.0的值，而当物体非常接近远平面的时候，它的深度值会非常接近1.0。</p>
+</blockquote>
+<p>然而，在实践中是几乎永远不会使用这样的线性深度缓冲(Linear Depth Buffer)的。要想有正确的投影性质，需要使用一个非线性的深度方程，它是与 1/z 成正比的。它做的就是在z值很小的时候提供非常高的精度，而在z值很远的时候提供更少的精度。花时间想想这个：我们真的需要对1000单位远的深度值和只有1单位远的充满细节的物体使用相同的精度吗？线性方程并不会考虑这一点。</p>
+<p>由于非线性方程与 1/z 成正比，在1.0和2.0之间的z值将会变换至1.0到0.5之间的深度值，这就是一个float提供给我们的一半精度了，这在z值很小的情况下提供了非常大的精度。在50.0和100.0之间的z值将会只占2%的float精度，这正是我们所需要的。这样的一个考虑了远近距离的方程是这样的：<br>$$<br>Fdepth=(1/z−1/near)/(1/far−1/near)<br>$$<br>如果你不知道这个方程是怎么回事也不用担心。重要的是要记住深度缓冲中的值在屏幕空间中不是线性的（在透视矩阵应用之前在观察空间中是线性的）。深度缓冲中0.5的值并不代表着物体的z值是位于平截头体的中间了，这个顶点的z值实际上非常接近近平面！你可以在下图中看到z值和最终的深度缓冲值之间的非线性关系：</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/depth_non_linear_graph.png" alt="img"></p>
+<p>可以看到，深度值很大一部分是由很小的z值所决定的，这给了近处的物体很大的深度精度。这个（从观察者的视角）变换z值的方程是嵌入在投影矩阵中的，所以当我们想将一个顶点坐标从观察空间至裁剪空间的时候这个非线性方程就被应用了。如果你想深度了解投影矩阵究竟做了什么，我建议阅读<a target="_blank" rel="noopener" href="http://www.songho.ca/opengl/gl_projectionmatrix.html">这篇文章</a>。</p>
+<p>如果我们想要可视化深度缓冲的话，非线性方程的效果很快就会变得很清楚。</p>
+<h2 id="深度缓冲的可视化"><a href="#深度缓冲的可视化" class="headerlink" title="深度缓冲的可视化"></a>深度缓冲的可视化</h2><p>我们知道片段着色器中，内建gl_FragCoord向量的z值包含了那个特定片段的深度值。如果我们将这个深度值输出为颜色，我们可以显示场景中所有片段的深度值。我们可以根据片段的深度值返回一个颜色向量来完成这一工作：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> main()</span><br><span class="line">&#123;</span><br><span class="line">    FragColor = <span class="type">vec4</span>(<span class="type">vec3</span>(<span class="built_in">gl_FragCoord</span>.z), <span class="number">1.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果你再次运行程序的话，你可能会注意到所有东西都是白色的，看起来就想我们所有的深度值都是最大的1.0。所以为什么没有靠近0.0（即变暗）的深度值呢？</p>
+<p>你可能还记得在上一部分中说到，屏幕空间中的深度值是非线性的，即它在z值很小的时候有很高的精度，而z值很大的时候有较低的精度。片段的深度值会随着距离迅速增加，所以几乎所有的顶点的深度值都是接近于1.0的。如果我们小心地靠近物体，你可能会最终注意到颜色会渐渐变暗，显示它们的z值在逐渐变小：</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/depth_testing_visible_depth.png" alt="img"></p>
+<p>这很清楚地展示了深度值的非线性性质。近处的物体比起远处的物体对深度值有着更大的影响。只需要移动几厘米就能让颜色从暗完全变白。</p>
+<p>然而，我们也可以让片段非线性的深度值变换为线性的。要实现这个，我们需要仅仅反转深度值的投影变换。这也就意味着我们需要首先将深度值从[0, 1]范围重新变换到[-1, 1]范围的标准化设备坐标（裁剪空间）。接下来我们需要像投影矩阵那样反转这个非线性方程（方程2），并将这个反转的方程应用到最终的深度值上。最终的结果就是一个线性的深度值了。听起来是可行的，对吧？</p>
+<p>首先我们将深度值变换为NDC，不是非常困难：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">float z = depth * 2.0 - 1.0;</span><br></pre></td></tr></table></figure>
+
+<p>接下来使用获取到的z值，应用逆变换来获取线性的深度值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">float linearDepth = (2.0 * near * far) / (far + near - z * (far - near));</span><br></pre></td></tr></table></figure>
+
+<p>这个方程是用投影矩阵推导得出的，它使用了方程2来非线性化深度值，返回一个near与far之间的深度值。这篇注重数学的<a target="_blank" rel="noopener" href="http://www.songho.ca/opengl/gl_projectionmatrix.html">文章</a>为感兴趣的读者详细解释了投影矩阵，它也展示了这些方程是怎么来的。</p>
+<p>将屏幕空间中非线性的深度值变换至线性深度值的完整片段着色器如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#version 330 core</span><br><span class="line">out vec4 FragColor;</span><br><span class="line"></span><br><span class="line">float near = 0.1; </span><br><span class="line">float far  = 100.0; </span><br><span class="line"></span><br><span class="line">float LinearizeDepth(float depth) </span><br><span class="line">&#123;</span><br><span class="line">    float z = depth * 2.0 - 1.0; // back to NDC </span><br><span class="line">    return (2.0 * near * far) / (far + near - z * (far - near));    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void main()</span><br><span class="line">&#123;             </span><br><span class="line">    float depth = LinearizeDepth(gl_FragCoord.z) / far; // 为了演示除以 far</span><br><span class="line">    FragColor = vec4(vec3(depth), 1.0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于线性化的深度值处于near与far之间，它的大部分值都会大于1.0并显示为完全的白色。通过在main函数中将线性深度值除以far，我们近似地将线性深度值转化到[0, 1]的范围之间。这样子我们就能逐渐看到一个片段越接近投影平截头体的远平面，它就会变得越亮，更适用于展示目的。</p>
+<p>如果我们现在运行程序，我们就能看见深度值随着距离增大是线性的了。尝试在场景中移动，看看深度值是怎样以线性变化的。</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/depth_testing_visible_linear.png" alt="img"></p>
+<p>颜色大部分都是黑色，因为深度值的范围是0.1的<strong>近</strong>平面到100的<strong>远</strong>平面，它离我们还是非常远的。结果就是，我们相对靠近近平面，所以会得到更低的（更暗的）深度值。</p>
+<h2 id="深度冲突"><a href="#深度冲突" class="headerlink" title="深度冲突"></a>深度冲突</h2><p>一个很常见的视觉错误会在两个平面或者三角形非常紧密地平行排列在一起时会发生，深度缓冲没有足够的精度来决定两个形状哪个在前面。结果就是这两个形状不断地在切换前后顺序，这会导致很奇怪的花纹。这个现象叫做深度冲突(Z-fighting)，因为它看起来像是这两个形状在争夺(Fight)谁该处于顶端。</p>
+<p>在我们一直使用的场景中，有几个地方的深度冲突还是非常明显的。箱子被放置在地板的同一高度上，这也就意味着箱子的底面和地板是共面的(Coplanar)。这两个面的深度值都是一样的，所以深度测试没有办法决定应该显示哪一个。</p>
+<p>如果你将摄像机移动到其中一个箱子的内部，你就能清楚地看到这个效果的，箱子的底部不断地在箱子底面与地板之间切换，形成一个锯齿的花纹：</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/depth_testing_z_fighting.png" alt="img"></p>
+<p>深度冲突是深度缓冲的一个常见问题，当物体在远处时效果会更明显（因为深度缓冲在z值比较大的时候有着更小的精度）。深度冲突不能够被完全避免，但一般会有一些技巧有助于在你的场景中减轻或者完全避免深度冲突、</p>
+<h3 id="防止深度冲突"><a href="#防止深度冲突" class="headerlink" title="防止深度冲突"></a>防止深度冲突</h3><p>第一个也是最重要的技巧是<strong>永远不要把多个物体摆得太靠近，以至于它们的一些三角形会重叠</strong>。通过在两个物体之间设置一个用户无法注意到的偏移值，你可以完全避免这两个物体之间的深度冲突。在箱子和地板的例子中，我们可以将箱子沿着正y轴稍微移动一点。箱子位置的这点微小改变将不太可能被注意到，但它能够完全减少深度冲突的发生。然而，这需要对每个物体都手动调整，并且需要进行彻底的测试来保证场景中没有物体会产生深度冲突。</p>
+<p>第二个技巧是<strong>尽可能将近平面设置远一些</strong>。在前面我们提到了精度在靠近<strong>近</strong>平面时是非常高的，所以如果我们将<strong>近</strong>平面远离观察者，我们将会对整个平截头体有着更大的精度。然而，将近平面设置太远将会导致近处的物体被裁剪掉，所以这通常需要实验和微调来决定最适合你的场景的<strong>近</strong>平面距离。</p>
+<p>另外一个很好的技巧是牺牲一些性能，<strong>使用更高精度的深度缓冲</strong>。大部分深度缓冲的精度都是24位的，但现在大部分的显卡都支持32位的深度缓冲，这将会极大地提高精度。所以，牺牲掉一些性能，你就能获得更高精度的深度测试，减少深度冲突。</p>
+<p>我们上面讨论的三个技术是最普遍也是很容易实现的抗深度冲突技术了。还有一些更复杂的技术，但它们依然不能完全消除深度冲突。深度冲突是一个常见的问题，但如果你组合使用了上面列举出来的技术，你可能不会再需要处理深度冲突了。</p>
+<h1 id="模板测试"><a href="#模板测试" class="headerlink" title="模板测试"></a>模板测试</h1><p>当片段着色器处理完一个片段之后，**模板测试(Stencil Test)<strong>会开始执行，和深度测试一样，它也可能会丢弃片段。接下来，被保留的片段会进入深度测试，它可能会丢弃更多的片段。模板测试是根据又一个缓冲来进行的，它叫做</strong>模板缓冲(Stencil Buffer)**，我们可以在渲染的时候更新它来获得一些很有意思的效果。</p>
+<p>一个模板缓冲中，（通常）每个**模板值(Stencil Value)**是8位的。所以每个像素/片段一共能有256种不同的模板值。我们可以将这些模板值设置为我们想要的值，然后当某一个片段有某一个模板值的时候，我们就可以选择丢弃或是保留这个片段了。</p>
+<blockquote>
+<p>每个窗口库都需要为你配置一个模板缓冲。GLFW自动做了这件事，所以我们不需要告诉GLFW来创建一个，但其它的窗口库可能不会默认给你创建一个模板库，所以记得要查看库的文档。</p>
+</blockquote>
+<p>模板缓冲的一个简单的例子如下：</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/stencil_buffer.png" alt="img"></p>
+<p>模板缓冲首先会被清除为0，之后在模板缓冲中使用1填充了一个空心矩形。场景中的片段将会只在片段的模板值为1的时候会被渲染（其它的都被丢弃了）。</p>
+<p>模板缓冲操作允许我们在渲染片段时将模板缓冲设定为一个特定的值。通过在渲染时修改模板缓冲的内容，我们<strong>写入</strong>了模板缓冲。在同一个（或者接下来的）渲染迭代中，我们可以<strong>读取</strong>这些值，来决定丢弃还是保留某个片段。使用模板缓冲的时候你可以尽情发挥，但大体的步骤如下：</p>
+<ul>
+<li>启用模板缓冲的写入。</li>
+<li>渲染物体，更新模板缓冲的内容。</li>
+<li>禁用模板缓冲的写入。</li>
+<li>渲染（其它）物体，这次根据模板缓冲的内容丢弃特定的片段。</li>
+</ul>
+<p>所以，通过使用模板缓冲，我们可以根据场景中已绘制的其它物体的片段，来决定是否丢弃特定的片段。</p>
+<p>你可以启用GL_STENCIL_TEST来启用模板测试。在这一行代码之后，所有的渲染调用都会以某种方式影响着模板缓冲。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">glEnable</span>(GL_STENCIL_TEST);</span><br></pre></td></tr></table></figure>
+
+<p>注意，和颜色和深度缓冲一样，你也需要在每次迭代之前清除模板缓冲。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);</span><br></pre></td></tr></table></figure>
+
+<p>和深度测试的glDepthMask函数一样，模板缓冲也有一个类似的函数。glStencilMask允许我们设置一个位掩码(Bitmask)，它会与将要写入缓冲的模板值进行与(AND)运算。默认情况下设置的位掩码所有位都为1，不影响输出，但如果我们将它设置为<code>0x00</code>，写入缓冲的所有模板值最后都会变成0.这与深度测试中的glDepthMask(GL_FALSE)是等价的。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">glStencilMask</span>(<span class="number">0xFF</span>); <span class="comment">// 每一位写入模板缓冲时都保持原样</span></span><br><span class="line"><span class="built_in">glStencilMask</span>(<span class="number">0x00</span>); <span class="comment">// 每一位在写入模板缓冲时都会变成0（禁用写入）</span></span><br></pre></td></tr></table></figure>
+
+<p>大部分情况下你都只会使用<code>0x00</code>或者<code>0xFF</code>作为模板掩码(Stencil Mask)，但是知道有选项可以设置自定义的位掩码总是好的。</p>
+<h2 id="模板函数"><a href="#模板函数" class="headerlink" title="模板函数"></a>模板函数</h2><p>和深度测试一样，我们对模板缓冲应该通过还是失败，以及它应该如何影响模板缓冲，也是有一定控制的。一共有两个函数能够用来配置模板测试：glStencilFunc和glStencilOp。</p>
+<p>glStencilFunc(GLenum func, GLint ref, GLuint mask)一共包含三个参数：</p>
+<ul>
+<li><code>func</code>：设置模板测试函数(Stencil Test Function)。这个测试函数将会应用到已储存的模板值上和glStencilFunc函数的<code>ref</code>值上。可用的选项有：GL_NEVER、GL_LESS、GL_LEQUAL、GL_GREATER、GL_GEQUAL、GL_EQUAL、GL_NOTEQUAL和GL_ALWAYS。它们的语义和深度缓冲的函数类似。</li>
+<li><code>ref</code>：设置了模板测试的参考值(Reference Value)。模板缓冲的内容将会与这个值进行比较。</li>
+<li><code>mask</code>：设置一个掩码，它将会与参考值和储存的模板值在测试比较它们之前进行与(AND)运算。初始情况下所有位都为1。</li>
+</ul>
+<p>在一开始的那个简单的模板例子中，函数被设置为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">glStencilFunc(GL_EQUAL, 1, 0xFF)</span><br></pre></td></tr></table></figure>
+
+<p>这会告诉OpenGL，只要一个片段的模板值等于(<code>GL_EQUAL</code>)参考值1，片段将会通过测试并被绘制，否则会被丢弃。</p>
+<p>但是glStencilFunc仅仅描述了OpenGL应该对模板缓冲内容做什么，而不是我们应该如何更新缓冲。这就需要glStencilOp这个函数了。</p>
+<p>glStencilOp(GLenum sfail, GLenum dpfail, GLenum dppass)一共包含三个选项，我们能够设定每个选项应该采取的行为：</p>
+<ul>
+<li><code>sfail</code>：模板测试失败时采取的行为。</li>
+<li><code>dpfail</code>：模板测试通过，但深度测试失败时采取的行为。</li>
+<li><code>dppass</code>：模板测试和深度测试都通过时采取的行为。</li>
+</ul>
+<p>每个选项都可以选用以下的其中一种行为：</p>
+<table>
+<thead>
+<tr>
+<th align="left">行为</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">GL_KEEP</td>
+<td align="left">保持当前储存的模板值</td>
+</tr>
+<tr>
+<td align="left">GL_ZERO</td>
+<td align="left">将模板值设置为0</td>
+</tr>
+<tr>
+<td align="left">GL_REPLACE</td>
+<td align="left">将模板值设置为glStencilFunc函数设置的<code>ref</code>值</td>
+</tr>
+<tr>
+<td align="left">GL_INCR</td>
+<td align="left">如果模板值小于最大值则将模板值加1</td>
+</tr>
+<tr>
+<td align="left">GL_INCR_WRAP</td>
+<td align="left">与GL_INCR一样，但如果模板值超过了最大值则归零</td>
+</tr>
+<tr>
+<td align="left">GL_DECR</td>
+<td align="left">如果模板值大于最小值则将模板值减1</td>
+</tr>
+<tr>
+<td align="left">GL_DECR_WRAP</td>
+<td align="left">与GL_DECR一样，但如果模板值小于0则将其设置为最大值</td>
+</tr>
+<tr>
+<td align="left">GL_INVERT</td>
+<td align="left">按位翻转当前的模板缓冲值</td>
+</tr>
+</tbody></table>
+<p>默认情况下glStencilOp是设置为<code>(GL_KEEP, GL_KEEP, GL_KEEP)</code>的，所以不论任何测试的结果是如何，模板缓冲都会保留它的值。默认的行为不会更新模板缓冲，所以如果你想写入模板缓冲的话，你需要至少对其中一个选项设置不同的值。</p>
+<p>所以，通过使用glStencilFunc和glStencilOp，我们可以精确地指定更新模板缓冲的时机与行为了，我们也可以指定什么时候该让模板缓冲通过，即什么时候片段需要被丢弃。</p>
+<h2 id="物体轮廓"><a href="#物体轮廓" class="headerlink" title="物体轮廓"></a>物体轮廓</h2><p>仅仅看了前面的部分你还是不太可能能够完全理解模板测试的工作原理，所以我们将会展示一个使用模板测试就可以完成的有用特性，它叫做物体轮廓(Object Outlining)。</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/stencil_object_outlining.png" alt="img"></p>
+<p>物体轮廓所能做的事情正如它名字所描述的那样。我们将会为每个（或者一个）物体在它的周围创建一个很小的有色边框。当你想要在策略游戏中选中一个单位进行操作的，想要告诉玩家选中的是哪个单位的时候，这个效果就非常有用了。为物体创建轮廓的步骤如下：</p>
+<ol>
+<li>在绘制（需要添加轮廓的）物体之前，将模板函数设置为GL_ALWAYS，每当物体的片段被渲染时，将模板缓冲更新为1。</li>
+<li>渲染物体。</li>
+<li>禁用模板写入以及深度测试。</li>
+<li>将每个物体缩放一点点。</li>
+<li>使用一个不同的片段着色器，输出一个单独的（边框）颜色。</li>
+<li>再次绘制物体，但只在它们片段的模板值不等于1时才绘制。</li>
+<li>再次启用模板写入和深度测试。</li>
+</ol>
+<p>这个过程将每个物体的片段的模板缓冲设置为1，当我们想要绘制边框的时候，我们主要绘制放大版本的物体中模板测试通过的部分，也就是物体的边框的位置。我们主要使用模板缓冲丢弃了放大版本中属于原物体片段的部分。</p>
+<p>所以我们首先来创建一个很简单的片段着色器，它会输出一个边框颜色。我们简单地给它设置一个硬编码的颜色值，将这个着色器命名为shaderSingleColor：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">void main()</span><br><span class="line">&#123;</span><br><span class="line">    FragColor = vec4(0.04, 0.28, 0.26, 1.0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们只想给那两个箱子加上边框，所以我们让地板不参与这个过程。我们希望首先绘制地板，再绘制两个箱子（并写入模板缓冲），之后绘制放大的箱子（并丢弃覆盖了之前绘制的箱子片段的那些片段）。</p>
+<p>我们首先启用模板测试，并设置测试通过或失败时的行为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">glEnable(GL_STENCIL_TEST);</span><br><span class="line">glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);</span><br></pre></td></tr></table></figure>
+
+<p>如果其中的一个测试失败了，我们什么都不做，我们仅仅保留当前储存在模板缓冲中的值。如果模板测试和深度测试都通过了，那么我们希望将储存的模板值设置为参考值，参考值能够通过glStencilFunc来设置，我们之后会设置为1。</p>
+<p>我们将模板缓冲清除为0，对箱子中所有绘制的片段，将模板值更新为1：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲</span><br><span class="line">glStencilMask(0xFF); // 启用模板缓冲写入</span><br><span class="line">normalShader.use();</span><br><span class="line">DrawTwoContainers();</span><br></pre></td></tr></table></figure>
+
+<p>通过使用GL_ALWAYS模板测试函数，我们保证了箱子的每个片段都会将模板缓冲的模板值更新为1。因为片段永远会通过模板测试，在绘制片段的地方，模板缓冲会被更新为参考值。</p>
+<p>现在模板缓冲在箱子被绘制的地方都更新为1了，我们将要绘制放大的箱子，但这次要禁用模板缓冲的写入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">glStencilFunc(GL_NOTEQUAL, 1, 0xFF);</span><br><span class="line">glStencilMask(0x00); // 禁止模板缓冲的写入</span><br><span class="line">glDisable(GL_DEPTH_TEST);</span><br><span class="line">shaderSingleColor.use(); </span><br><span class="line">DrawTwoScaledUpContainers();</span><br></pre></td></tr></table></figure>
+
+<p>我们将模板函数设置为GL_NOTEQUAL，它会保证我们只绘制箱子上模板值不为1的部分，即只绘制箱子在之前绘制的箱子之外的部分。注意我们也禁用了深度测试，让放大的箱子，即边框，不会被地板所覆盖。</p>
+<p>记得要在完成之后重新启用深度缓冲。</p>
+<p>场景中物体轮廓的完整步骤会看起来像这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">glEnable(GL_DEPTH_TEST);</span><br><span class="line">glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  </span><br><span class="line"></span><br><span class="line">glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); </span><br><span class="line"></span><br><span class="line">glStencilMask(0x00); // 记得保证我们在绘制地板的时候不会更新模板缓冲</span><br><span class="line">normalShader.use();</span><br><span class="line">DrawFloor()  </span><br><span class="line"></span><br><span class="line">glStencilFunc(GL_ALWAYS, 1, 0xFF); </span><br><span class="line">glStencilMask(0xFF); </span><br><span class="line">DrawTwoContainers();</span><br><span class="line"></span><br><span class="line">glStencilFunc(GL_NOTEQUAL, 1, 0xFF);</span><br><span class="line">glStencilMask(0x00); </span><br><span class="line">glDisable(GL_DEPTH_TEST);</span><br><span class="line">shaderSingleColor.use(); </span><br><span class="line">DrawTwoScaledUpContainers();</span><br><span class="line">glStencilMask(0xFF);</span><br><span class="line">glEnable(GL_DEPTH_TEST);  </span><br></pre></td></tr></table></figure>
+
+<p>只要你理解了模板缓冲背后的大体思路，这个代码片段就不是那么难理解了。如果还是不能理解的话，尝试再次仔细阅读之前的部分，并尝试通过上面使用的范例，完全理解每个函数的功能。</p>
+<p>在[深度测试](<a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/04">https://learnopengl-cn.github.io/04</a> Advanced OpenGL/01 Depth testing/)小节的场景中，这个轮廓算法的结果看起来会像是这样的：</p>
+<p><img src="/2021/10/19/OpenGL-highlevel/stencil_scene_outlined.png" alt="img"></p>
+<p>可以在<a target="_blank" rel="noopener" href="https://learnopengl.com/code_viewer_gh.php?code=src/4.advanced_opengl/2.stencil_testing/stencil_testing.cpp">这里</a>查看源代码，看看物体轮廓算法的完整代码。</p>
+<p>你可以看到这两个箱子的边框重合了，这通常都是我们想要的结果（想想策略游戏中，我们希望选择10个单位，合并边框通常是我们想需要的结果）。如果你想让每个物体都有一个完整的边框，你需要对每个物体都清空模板缓冲，并有创意地利用深度缓冲。</p>
+<p>你看到的物体轮廓算法在需要显示选中物体的游戏（想想策略游戏）中非常常见。这样的算法能够在一个模型类中轻松实现。你可以在模型类中设置一个boolean标记，来设置需不需要绘制边框。如果你有创造力的话，你也可以使用后期处理滤镜(Filter)，像是高斯模糊(Gaussian Blur)，让边框看起来更自然。</p>
+<p>除了物体轮廓之外，模板测试还有很多用途，比如在一个后视镜中绘制纹理，让它能够绘制到镜子形状中，或者使用一个叫做阴影体积(Shadow Volume)的模板缓冲技术渲染实时阴影。模板缓冲为我们已经很丰富的OpenGL工具箱又提供了一个很好的工具。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Smt</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://zwlbird.github.io/2021/10/19/OpenGL-highlevel/">https://zwlbird.github.io/2021/10/19/OpenGL-highlevel/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://zwlbird.github.io" target="_blank">.oOo.</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/C/">C++</a></div><div class="post_share"><div class="social-share" data-image="https://s2.loli.net/2023/12/12/zb5QarqSYDHWZs6.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/31/Android/"><img class="prev-cover" src="https://s2.loli.net/2023/12/12/gfXKlqmwMWzPxH7.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Android</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/17/OpenGL-light/"><img class="next-cover" src="https://s2.loli.net/2023/12/12/Dlf5uYb78R1Firw.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">OpenGL-light</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/04/03/Hexo/" title="Hexo"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-03</div><div class="title">Hexo</div></div></a></div><div><a href="/2021/10/17/OpenGL-light/" title="OpenGL-light"><img class="cover" src="https://s2.loli.net/2023/12/12/Dlf5uYb78R1Firw.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-17</div><div class="title">OpenGL-light</div></div></a></div><div><a href="/2021/07/13/C-11/" title="C++11"><img class="cover" src="https://s2.loli.net/2023/12/12/w6gBS4XVHa8hA7O.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-13</div><div class="title">C++11</div></div></a></div><div><a href="/2021/06/27/C/" title="C++"><img class="cover" src="https://s2.loli.net/2023/12/12/cYpI451Z9oJwFqQ.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-27</div><div class="title">C++</div></div></a></div><div><a href="/2021/07/13/STL/" title="STL"><img class="cover" src="https://s2.loli.net/2023/12/12/dEMek6rKx2XmsD5.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-13</div><div class="title">STL</div></div></a></div><div><a href="/2021/07/13/opencv/" title="opencv"><img class="cover" src="https://s2.loli.net/2023/12/12/Wf2LRwIhBnmXxUN.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-13</div><div class="title">opencv</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">Smt</div><div class="author-info__description">哇咔咔</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">26</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/zwlbird/zwlbird.github.io" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zwl931025@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">This is my Blog This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">深度测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95%E5%87%BD%E6%95%B0"><span class="toc-number">1.1.</span> <span class="toc-text">深度测试函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E5%80%BC%E7%B2%BE%E5%BA%A6"><span class="toc-number">1.2.</span> <span class="toc-text">深度值精度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E7%BC%93%E5%86%B2%E7%9A%84%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="toc-number">1.3.</span> <span class="toc-text">深度缓冲的可视化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E5%86%B2%E7%AA%81"><span class="toc-number">1.4.</span> <span class="toc-text">深度冲突</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E6%AD%A2%E6%B7%B1%E5%BA%A6%E5%86%B2%E7%AA%81"><span class="toc-number">1.4.1.</span> <span class="toc-text">防止深度冲突</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E6%B5%8B%E8%AF%95"><span class="toc-number">2.</span> <span class="toc-text">模板测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.</span> <span class="toc-text">模板函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%A9%E4%BD%93%E8%BD%AE%E5%BB%93"><span class="toc-number">2.2.</span> <span class="toc-text">物体轮廓</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/04/03/Hexo/" title="Hexo"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo"/></a><div class="content"><a class="title" href="/2022/04/03/Hexo/" title="Hexo">Hexo</a><time datetime="2022-04-02T16:33:52.000Z" title="发表于 2022-04-03 00:33:52">2022-04-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/Android/" title="Android"><img src="https://s2.loli.net/2023/12/12/gfXKlqmwMWzPxH7.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Android"/></a><div class="content"><a class="title" href="/2021/10/31/Android/" title="Android">Android</a><time datetime="2021-10-31T14:03:21.000Z" title="发表于 2021-10-31 22:03:21">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/19/OpenGL-highlevel/" title="OpenGL-highlevel"><img src="https://s2.loli.net/2023/12/12/zb5QarqSYDHWZs6.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="OpenGL-highlevel"/></a><div class="content"><a class="title" href="/2021/10/19/OpenGL-highlevel/" title="OpenGL-highlevel">OpenGL-highlevel</a><time datetime="2021-10-19T13:35:33.000Z" title="发表于 2021-10-19 21:35:33">2021-10-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/17/OpenGL-light/" title="OpenGL-light"><img src="https://s2.loli.net/2023/12/12/Dlf5uYb78R1Firw.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="OpenGL-light"/></a><div class="content"><a class="title" href="/2021/10/17/OpenGL-light/" title="OpenGL-light">OpenGL-light</a><time datetime="2021-10-17T14:09:58.000Z" title="发表于 2021-10-17 22:09:58">2021-10-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/21/OpenGL-3D/" title="OpenGL_3D"><img src="https://s2.loli.net/2023/12/12/EZS5QGm23HLgvW4.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="OpenGL_3D"/></a><div class="content"><a class="title" href="/2021/09/21/OpenGL-3D/" title="OpenGL_3D">OpenGL_3D</a><time datetime="2021-09-21T07:31:53.000Z" title="发表于 2021-09-21 15:31:53">2021-09-21</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2023/12/12/zb5QarqSYDHWZs6.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By Smt</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: 'RrMFpOdr0spfIDfRdBukvyf7-gzGzoHsz',
+      appKey: 'nipjeGzTyw5yvNk2SgU5KmUQ',
+      placeholder: 'Please leave your footprints',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+      requiredFields: ["nick,mail"],
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script></div><script src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><script src="https://myhkw.cn/api/player/162393526192" id="myhk" key="162393526192" m="1"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/gh/metowolf/MetingJS@1.2/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,1 @@
+example中会提示缺少test.jpg，这个文件在qrc里，把它去掉就行了
