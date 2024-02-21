@@ -4698,6 +4698,21 @@
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">dumpbin /DEPENDENTS D:\sofeware\anaconda\envs\python38\Lib\site-packages\PySmartCard\ReaderLib_64.dll</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2021/07/13/python/1490994-20230807111723918-1058420167.png" alt="img"></p>
+<h1 id="Python3开启http-server服务"><a href="#Python3开启http-server服务" class="headerlink" title="Python3开启http server服务"></a>Python3开启http server服务</h1><p>python3可以为当前目录开启http server，实现该目录下，文件的网络共享。</p>
+<p>通过以下指令，python会默认开启一个端口为8000的http服务</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python -m http.server</span><br></pre></td></tr></table></figure>
+
+<p>如果想更换端口，直接在指令最后加端口号即可（注意这个端口不要用6000段<a href="https://zhuanlan.zhihu.com/p/605845898%EF%BC%89">https://zhuanlan.zhihu.com/p/605845898）</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python -m http.server -b 192.168.6.44 44444</span><br></pre></td></tr></table></figure>
+
+<h4 id="效果"><a href="#效果" class="headerlink" title="效果"></a><strong>效果</strong></h4><p>python3开启http server，默认端口为8000</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">E:\Projects\SpxFrame\<span class="number">212</span>\TZweatherDisplay\Main\Installer-online\Server&gt;python -m http.server</span><br><span class="line">Serving HTTP on :: port <span class="number">8000</span> (http://[::]:<span class="number">8000</span>/) ...</span><br></pre></td></tr></table></figure>
+
+<p>python3开启http server，手动指定端口为44444</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">E:\Projects\SpxFrame\212\TZweatherDisplay\Main\Installer-online\Server&gt;python -m http.server -b 192.168.6.44 44444</span><br><span class="line">Serving HTTP on 192.168.6.44 port 44444 (http://192.168.6.44:44444/) ...</span><br></pre></td></tr></table></figure>
+
+<p>例：查看浏览器访问效果</p>
+<p><img src="/2021/07/13/python/image-20240207154050275.png" alt="image-20240207154050275"></p>
 ]]></content>
       <categories>
         <category>python</category>
