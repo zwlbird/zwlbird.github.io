@@ -6,7 +6,7 @@
 !define PRODUCT_VERSION "1.0"
 !define PRODUCT_PUBLISHER "My company, Inc."
 !define PRODUCT_WEB_SITE "http://www.mycompany.com"
-!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\OceanWindPlatform.exe"
+!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
@@ -16,6 +16,7 @@
 !include LogicLib.nsh
 !include Integration.nsh
 !include FileFunc.nsh #刷新桌面图标缓存
+!include nsProcess.nsh
 
 # ======================== MUI属性 =================================
 ; MUI Settings
@@ -75,9 +76,30 @@ ShowUnInstDetails show
   ${EndIf}
 !macroend
 
+#检查是否正在运行
+!macro CheckRuning
+	StrCpy $1 "$(^Name).exe"
+    nsProcess::_FindProcess "$1" 
+    Pop $R0
+	IntCmp $R0 0 running no_running no_running
+	running:
+	MessageBox MB_ICONQUESTION|MB_YESNO "安装程序检测到 ${PRODUCT_NAME} 正在运行，是否强行关闭并继续安装?" IDYES dokill IDNO stopit
+	no_running:
+		GoTo endding
+	dokill:
+		nsProcess::_KillProcess "$1"
+		Pop $R0
+		GoTo endding
+	stopit:
+		Abort
+	endding:
+		nsProcess::_Unload
+!macroend
+
 #函数名以“.”开头的(例如 “.Whatever”)一般作为回调函数保留。
 #参考4.7.2.1.2 .onInit
 Function .onInit
+  !insertmacro CheckRuning
   !insertmacro MUI_LANGDLL_DISPLAY
   !insertmacro EnsureAdminRights
 FunctionEnd
@@ -2016,6 +2038,7 @@ Function un.onUninstSuccess
 FunctionEnd
 
 Function un.onInit
+!insertmacro CheckRuning
 !insertmacro EnsureAdminRights
 !insertmacro MUI_UNGETLANGUAGE
  #相对跳转由数字标定。+1 跳转到下一条指令 (默认的步进)，+2 会跳过一条指令也并且从当前指令转到第二条指令，-2 将往后跳两条指令，+10 将会跳过 9 条指令，从当前指令跳到第十条指令。
