@@ -1,0 +1,43 @@
+nisedit2.0.3.exe是IDE
+nsis-3.09-setup.exe是编译器
+
+额外头文件.zip是额外的头文件，用于版本比较的头文件就位于FileFunc.nsh中，但是这个比较老，所以自己构建了一个，叫VersionCompare.nsh
+  使用
+	#要使用带参数的VersionCompare宏定义，需要先插入
+	!insertmacro VersionCompare
+	#检查版本号
+	!macro CheckUpdate
+	  ReadRegStr $1 HKLM  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion"	#取注册表键值
+	  ${VersionCompare} "$1" "${PRODUCT_VERSION}" $2
+	  ${IF} $2 == 1
+		MessageBox MB_ICONQUESTION|MB_YESNO "你系统中版本$1高于更新版本${PRODUCT_VERSION}，是否继续安装?" IDYES continue IDNO stop
+		continue:
+			return
+		stop:
+			Abort
+	  ${ElseIf}  $2 == 0
+		MessageBox MB_OK "你系统中现有版本为$1，为最新当前最新版本" IDOK
+		Abort
+	  ${EndIf}
+		return
+	!macroend
+
+NsProcess.zip是用于判断程序是否运行的库文件
+	插件包Include中的nsProcess.nsh移动到nsis的Include中
+	插件包Plugin中的nsProcess.dll移动到nsis的Plugins\x86-ansi中
+	插件包Plugin中的nsProcessW.dll移动到nsis的Plugins\x86-unicode中
+	nsProcessW.dll名称修改为nsProcess.dll
+  使用
+	引入头文件
+	!include "nsProcess.nsh"
+
+	查询进程是否处于运行状态
+	nsProcess::_FindProcess "xxx.exe" 
+
+	查询到返回0
+	关闭进程
+	nsProcess::_KillProcess "xxx.exe"
+
+	Nsis回调函数
+	.onInit 安装时回调
+	un.onInit 卸载时回调

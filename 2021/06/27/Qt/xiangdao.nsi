@@ -17,6 +17,7 @@
 !include Integration.nsh
 !include FileFunc.nsh #刷新桌面图标缓存
 !include nsProcess.nsh
+!include VersionCompare.nsh
 
 # ======================== MUI属性 =================================
 ; MUI Settings
@@ -55,7 +56,7 @@
 
 # ==================== NSIS属性 ================================
 Name "${PRODUCT_NAME}"
-OutFile "install.exe"
+OutFile "installV${PRODUCT_VERSION}.exe"
 InstallDir "$PROGRAMFILES\$(^Name)"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
@@ -96,9 +97,29 @@ ShowUnInstDetails show
 		nsProcess::_Unload
 !macroend
 
+#要使用带参数的VersionCompare宏定义，需要先插入
+!insertmacro VersionCompare
+#检查版本号
+!macro CheckUpdate
+  ReadRegStr $1 HKLM  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion"	#取注册表键值
+  ${VersionCompare} "$1" "${PRODUCT_VERSION}" $2
+  ${IF} $2 == 1
+	MessageBox MB_ICONQUESTION|MB_YESNO "你系统中版本$1高于更新版本${PRODUCT_VERSION}，是否继续安装?" IDYES continue IDNO stop
+	continue:
+		return
+	stop:
+		Abort
+  ${ElseIf}  $2 == 0
+	MessageBox MB_OK "你系统中现有版本为$1，为最新当前最新版本" IDOK
+    Abort
+  ${EndIf}
+	return
+!macroend
+
 #函数名以“.”开头的(例如 “.Whatever”)一般作为回调函数保留。
 #参考4.7.2.1.2 .onInit
 Function .onInit
+  !insertmacro CheckUpdate
   !insertmacro CheckRuning
   !insertmacro MUI_LANGDLL_DISPLAY
   !insertmacro EnsureAdminRights
@@ -2646,6 +2667,7 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 SectionEnd
 
+
 #文件后缀与应用程序关联,不在安装界面中体现出来
 Section -IconExe
   WriteRegStr HKCR ".TZP" "" "TZP.File"
@@ -5179,7 +5201,7 @@ Section Uninstall
   #解除文件后缀与应用程序关联
   DeleteRegKey HKCR ".TZP"
   #刷新桌面图标缓存
-  ${RefreshShellIcons}
+  ${un.RefreshShellIcons}
   
   SetAutoClose true
 SectionEnd
