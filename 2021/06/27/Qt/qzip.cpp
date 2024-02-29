@@ -15,7 +15,9 @@ bool qzip::zipReader(QString zipPath, QString zipDir)
     QDir tempDir;
     if(!tempDir.exists(zipDir)) tempDir.mkpath(zipDir);
     QZipReader reader(zipPath);
-    return reader.extractAll(zipDir);
+    bool b=reader.extractAll(zipDir);
+    qDebug()<<"--------reader.status();---------------:"<<reader.status();
+    return b;
 }
 
 //! \brief zipWriter    压缩zip包
@@ -51,6 +53,7 @@ void qzip::zipWriter(QString zipPath, QFileInfoList fileList)
 
     // 遍历文件列表
     foreach (QFileInfo fileInfo, fileList) {
+        if (fileInfo.fileName()=="." || fileInfo.fileName()=="..") continue;
         //添加需要压缩的文件
         QFile file(fileInfo.filePath());
         if (!file.exists()) continue;
